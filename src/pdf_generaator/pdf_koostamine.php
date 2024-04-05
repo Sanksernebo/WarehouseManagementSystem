@@ -1,7 +1,7 @@
 <?php
 session_cache_limiter('nocache');
 session_start();
-include_once 'laoseis.php';
+include_once '../db/laoseis.php';
 
 // PDFi koostamine.
 

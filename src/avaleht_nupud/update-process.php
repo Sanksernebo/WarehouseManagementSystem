@@ -1,5 +1,5 @@
 <?php
-include_once 'laoseis.php';
+include_once '../db/laoseis.php';
 if(count($_POST)>0) {
 mysqli_query($conn,"UPDATE Ladu set ID='" . $_POST['ID'] . "',Tootekood='" . $_POST['Tootekood'] . "', Nimetus='" . $_POST['Nimetus'] . "', Kogus='" . $_POST['Kogus'] . "' ,Sisseost='" . $_POST['Sisseost'] . "', Jaehind='" . $_POST['Jaehind'] . "',Lopphind='" . $_POST['Lopphind'] . "', Ost='" . $_POST['Ost'] . "',Olek='" . $_POST['Olek'] . "' WHERE ID='" . $_POST['ID'] . "'");
 $message = "Edukalt uuendatud!";
@@ -9,16 +9,26 @@ $row= mysqli_fetch_array($result);
 ?>
 <html>
 <head>
-<title>Toote andmed</title>
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" type="image/x-icon" href="img/cartehniklogo_svg.svg">
+    <title>Toote andmed</title>
 </head>
 <body>
 <nav>
-    <a href="index.php">Avaleht</a>
-    <a href="myyk.php">Müüdud Tooted</a>
-    <a href="tehtud_tood.php">Tehtud Tööd</a>
-    <a href="insert.php" class="active">Lisa Toode</a>
-</nav>
+        <a href="../../index.php">Avaleht</a>
+        <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+        <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
+        <div class="dropdown">
+            <button class="dropbtn">Rehvid
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+                <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+            </div>
+        </div>
+        <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+    </nav>
 <form name="frmUser" method="post" action="">
 <div><?php if(isset($message)) { echo $message; } ?>
 </div>

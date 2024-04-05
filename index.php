@@ -1,6 +1,6 @@
 <?php
 global $conn;
-include_once 'laoseis.php';
+include_once 'src/db/laoseis.php';
 $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehind, Ost, Olek FROM ladu ORDER BY ID DESC");
 ?>
 <!DOCTYPE html>
@@ -11,35 +11,46 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehin
  <link rel="stylesheet" href="style.css">
  <title> Laoseis</title>
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-     <link rel="icon" type="image/x-icon" href="cartehniklogo_svg.svg">
+     <link rel="icon" type="image/x-icon" href="src/img/cartehniklogo_svg.svg">
  </head>
 <body>
 <nav>
     <a href="index.php">Avaleht</a>
-    <a href="myyk.php">Müüdud Tooted</a>
-    <a href="tehtud_tood.php">Tehtud Tööd</a>
+    <a href="src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+    <a href="src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
     <div class="dropdown">
         <button class="dropbtn">Rehvid
             <i class="fa fa-caret-down"></i>
         </button>
         <div class="dropdown-content">
-            <a href="rehv_myyk.php">Müüdud Rehvid</a>
-            <a href="rehv_ladu.php">Rehvid Laos</a>
+            <a href="src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+            <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
         </div>
     </div>
-    <a href="insert.php" class="active">Lisa Toode</a>
+    <a href="src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
 </nav>
 <?php
 if (mysqli_num_rows($result) > 0) {
 }
 else{
-    echo "<p style=font-weight:bold>Tulemusi ei leitud </p>";
-    echo "<nav>
-    <a href=index.phpindex.php>Avaleht</a>
-    <a href=myyk.php>Müüdud Tooted</a>
-    <a href=insert.php class=active>Lisa Toode</a>
-        </nav>";
-}
+  echo "<p style=font-weight:bold>Tulemusi ei leitud </p>";
+  echo "
+  <nav>
+      <a href=index.php>Avaleht</a>
+      <a href=src/myydud_tooted/myyk.php>Müüdud Tooted</a>
+      <a href=src/tehtud_tood/tehtud_tood.php>Tehtud Tööd</a>
+      <div class=dropdown>
+          <button class=dropbtn>Rehvid
+              <i class=fa fa-caret-down></i>
+          </button>
+          <div class=dropdown-content>
+              <a href=src/rehv_myyk/rehv_myyk.php>Müüdud Rehvid</a>
+              <a href=src/rehv_ladu/rehv_ladu.php>Rehvid Laos</a>
+          </div>
+      </div>
+      <a href=src/lisa_lattu/lisa_lattu.php class=active>Lisa Toode</a>
+  </nav>";
+};
 
 ?>
 <h1>Laoseis</h1>
