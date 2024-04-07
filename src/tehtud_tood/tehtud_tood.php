@@ -14,6 +14,12 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, Kuupaev, Odomeeter, 
  </head>
 <body>
 <nav>
+	<div class="logo">
+			<a href="../../index.php">
+				<img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+			</a>
+	</div>
+	<div class="nav-links">
         <a href="../../index.php">Avaleht</a>
         <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
         <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
@@ -27,6 +33,7 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, Kuupaev, Odomeeter, 
             </div>
         </div>
         <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+    </div>
     </nav>
 <?php
 if (mysqli_num_rows($result) > 0) {

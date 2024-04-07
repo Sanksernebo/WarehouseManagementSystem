@@ -8,6 +8,7 @@
 
 /* Desktop code */
 body{
+font-family: 'Lato', sans-serif;
 padding-top: 90px;
 padding-bottom:90px;
 padding-right:50px;
@@ -17,25 +18,56 @@ line-height: 1.5;
 color: #333;
 background-color: #fff;
 }
+
 nav {
-display: flex;
-justify-content: flex-end;
-align-items: center;
-background-color: #333;
-color: white;
-padding: 10px;
-position: fixed;
-top: 0;
-left: 0;
-right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
-nav a {
-color: white;
-text-decoration: none;
-padding: 10px 15px;
-border-radius: 5px;
-margin-left:12px;
+.nav-links {
+  display: flex;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-left: 12px;
+  transition: background-color 0.3s ease; /* Added transition for hover effect */
+}
+
+.nav-links a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.logo {
+  margin-left: 20px;
+}
+
+.logo img {
+  display: block;
+  height: auto;
+  max-height: 100px;
+  width: 50px;
+}
+
+.logo a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo a:hover {
+  text-decoration: none;
 }
 
 /* The dropdown container */

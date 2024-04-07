@@ -7,6 +7,12 @@
 </head>
 <body>
 <nav>
+	<div class="logo">
+			<a href="../../index.php">
+				<img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+			</a>
+	</div>
+	<div class="nav-links">
         <a href="../../index.php">Avaleht</a>
         <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
         <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
@@ -20,6 +26,7 @@
             </div>
         </div>
         <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+    </div>
     </nav>
 <h1>Lisa Toode</h1>
 	<form method="post" action="process.php">

@@ -10,25 +10,34 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehin
     <meta charset="utf-8">
  <link rel="stylesheet" href="style.css">
  <title> Laoseis</title>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-     <link rel="icon" type="image/x-icon" href="src/img/cartehniklogo_svg.svg">
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/x-icon" href="src/img/cartehniklogo_svg.svg">
  </head>
 <body>
 <nav>
-    <a href="index.php">Avaleht</a>
-    <a href="src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-    <a href="src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-    <div class="dropdown">
-        <button class="dropbtn">Rehvid
-            <i class="fa fa-caret-down"></i>
-        </button>
-        <div class="dropdown-content">
-            <a href="src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-            <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
-        </div>
+    <div class="logo">
+        <a href="#">
+            <img src="src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+        </a>
     </div>
-    <a href="src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+    <div class="nav-links">
+        <a href="index.php">Avaleht</a>
+        <a href="src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+        <a href="src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
+        <div class="dropdown">
+            <button class="dropbtn">Rehvid
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+                <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+            </div>
+        </div>
+        <a href="src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+    </div>
 </nav>
+
 <?php
 if (mysqli_num_rows($result) > 0) {
 }

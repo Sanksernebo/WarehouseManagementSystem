@@ -15,6 +15,12 @@ $row= mysqli_fetch_array($result);
 </head>
 <body>
 <nav>
+	<div class="logo">
+			<a href="../../index.php">
+				<img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+			</a>
+	</div>
+	<div class="nav-links">
         <a href="../../index.php">Avaleht</a>
         <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
         <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
@@ -28,6 +34,7 @@ $row= mysqli_fetch_array($result);
             </div>
         </div>
         <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+    </div>
     </nav>
 <form name="frmUser" method="post" action="">
 <div><?php if(isset($message)) { echo $message; } ?>
