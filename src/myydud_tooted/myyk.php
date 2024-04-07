@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Kuupaev, Sisseost, Hind, Summa FROM Ladu_logi ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS Kuupaev, Sisseost, Hind, Summa FROM Ladu_logi ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -31,7 +31,6 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Kuupaev, Sisseos
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
-        <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
     </div>
     </nav>
         <?php
@@ -83,7 +82,6 @@ else{
                 <a href=src/rehv_ladu/rehv_ladu.php>Rehvid Laos</a>
             </div>
         </div>
-        <a href=src/lisa_lattu/lisa_lattu.php class=active>Lisa Toode</a>
     </nav>";
 }
 ?>
@@ -92,4 +90,15 @@ else{
     <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script></p>
 </footer>
     </body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var currentUrl = window.location.href;
+    
+    document.querySelectorAll('.nav-links a').forEach(function (link) {
+        if (link.href === currentUrl) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
 </html>

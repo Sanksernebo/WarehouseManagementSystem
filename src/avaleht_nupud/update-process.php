@@ -3,6 +3,7 @@ include_once '../db/laoseis.php';
 if(count($_POST)>0) {
 mysqli_query($conn,"UPDATE Ladu set ID='" . $_POST['ID'] . "',Tootekood='" . $_POST['Tootekood'] . "', Nimetus='" . $_POST['Nimetus'] . "', Kogus='" . $_POST['Kogus'] . "' ,Sisseost='" . $_POST['Sisseost'] . "', Jaehind='" . $_POST['Jaehind'] . "',Lopphind='" . $_POST['Lopphind'] . "', Ost='" . $_POST['Ost'] . "',Olek='" . $_POST['Olek'] . "' WHERE ID='" . $_POST['ID'] . "'");
 $message = "Edukalt uuendatud!";
+header("Location: ../../index.php");
 }
 $result = mysqli_query($conn,"SELECT * FROM Ladu WHERE ID='" . $_GET['ID'] . "'");
 $row= mysqli_fetch_array($result);
@@ -33,7 +34,6 @@ $row= mysqli_fetch_array($result);
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
-        <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
     </div>
     </nav>
 <form name="frmUser" method="post" action="">

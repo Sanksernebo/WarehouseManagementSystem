@@ -26,7 +26,6 @@
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
-        <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
     </div>
     </nav>
 

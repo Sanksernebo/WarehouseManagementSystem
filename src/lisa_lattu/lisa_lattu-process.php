@@ -15,6 +15,7 @@ if(isset($_POST['submit']))
 	 $message = "Sisestatud edukalt";
 	 if (mysqli_query($conn, $sql)) {
 	    $message = "Sisestatud edukalt";
+        header("Location: ../../index.php");
 ?>
 <html>
 <head>
@@ -36,7 +37,6 @@ if(isset($_POST['submit']))
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
-        <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
     </nav>
 <footer>
     <p>Rõngu Auto OÜ</p>

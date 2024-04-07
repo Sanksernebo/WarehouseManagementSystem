@@ -1,12 +1,12 @@
 <?php
 global $conn;
 include_once 'src/db/laoseis.php';
-$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehind, Ost, Olek FROM ladu ORDER BY ID DESC");
+$result = mysqli_query($conn,"SELECT * FROM ladu ORDER BY ID DESC");
 ?>
 <!DOCTYPE html>
 <html>
  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
  <link rel="stylesheet" href="style.css">
  <title> Laoseis</title>
@@ -34,7 +34,6 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehin
                 <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
-        <a href="src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
     </div>
 </nav>
 
@@ -42,8 +41,8 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehin
 if (mysqli_num_rows($result) > 0) {
 }
 else{
-  echo "<p style=font-weight:bold>Tulemusi ei leitud </p>";
-  echo "
+    echo "<p style='font-weight:bold'>Tulemusi ei leitud</p>";
+    echo "
   <nav>
       <a href=index.php>Avaleht</a>
       <a href=src/myydud_tooted/myyk.php>Müüdud Tooted</a>
@@ -57,74 +56,92 @@ else{
               <a href=src/rehv_ladu/rehv_ladu.php>Rehvid Laos</a>
           </div>
       </div>
-      <a href=src/lisa_lattu/lisa_lattu.php class=active>Lisa Toode</a>
   </nav>";
 };
 
 ?>
 <h1>Laoseis</h1>
+<a href="src/lisa_lattu/lisa_lattu-process.php" class="lisa-link">Lisa Laoseisu</a>
+<input type="text" id="myInput" onkeyup="search()" placeholder="Sisesta Tootekood">
 <table id=myTable>
-    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Sisesta Tootekood">
-	<tr>
-    	<td>Tootekood</td>
-    	<td>Nimetus</td>
-    	<td>Kogus</td>
-    	<td>Sisseostu Hind</td>
-    	<td>Jaehind</td>
-    	<td>Ostetud</td>
-    	<td>Olek</td>
-    	<td>Tegevus</td>
-	</tr>
+    <thead>
+        <tr>
+            <td>Tootekood</td>
+            <td>Nimetus</td>
+            <td>Kogus</td>
+            <td>Sisseostu Hind</td>
+            <td>Jaehind</td>
+            <td>Ostetud</td>
+            <td>Olek</td>
+            <td>Tegevus</td>
+        </tr>
+    </thead>
     	<?php
     	$i=0;
     	while($row = mysqli_fetch_array($result)) {
 	    ?>
-	<tr class="<?php if(isset($classname)) echo $classname;?>">
-	<td><?php echo $row["Tootekood"]; ?></td>
-	<td><?php echo $row["Nimetus"]; ?></td>
-	<td><?php echo $row["Kogus"]; ?></td>
-	<td><?php echo $row["Sisseost"]; ?></td>
-	<td><?php echo $row["Jaehind"]; ?></td>
-	<td><?php echo $row["Ost"]; ?></td>
-	<td><?php echo $row["Olek"]; ?></td>
-	<td class="button-container">
-	    <a href="update-process.php?ID=<?php echo $row["ID"]; ?>" class="muuda-link">Muuda</a>
-	    <a href="delete-process.php?ID=<?php echo $row["ID"]; ?>" class="kustuta-link">Kustuta</a>
-    </td>
-	</tr>
+    <tbody>
+	<tr>
+        <td><?php echo $row["Tootekood"]; ?></td>
+        <td><?php echo $row["Nimetus"]; ?></td>
+        <td><?php echo $row["Kogus"]; ?></td>
+        <td><?php echo $row["Sisseost"]; ?></td>
+        <td><?php echo $row["Jaehind"]; ?></td>
+        <td><?php echo $row["Ost"]; ?></td>
+        <td><?php echo $row["Olek"]; ?></td>
+        <td class="button-container">
+            <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["ID"]; ?>" class="muuda-link">Muuda</a>
+            <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["ID"]; ?>" class="kustuta-link">Kustuta</a>
+        </td>
+        </tr>
+    </tbody>
 	<?php
 	$i++;
 	}
 	?>
-	
-	<script>
-function myFunction() {
-  // Declare variables
-  var input, filter, table, tr, td, i, txtValue;
-  input = document.getElementById("myInput");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("myTable");
-  tr = table.getElementsByTagName("tr");
-
-  // Loop through all table rows, and hide those who don't match the search query
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
-    if (td) {
-      txtValue = td.textContent || td.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    }
-  }
-}
-</script>
 </table>
-
 <footer>
     <p>Rõngu Auto OÜ</p>
     <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script></p>
 </footer>
  </body>
+ <script>
+function search() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("myTable");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = ""; // Show the row
+            } else {
+                tr[i].style.display = "none"; // Hide the row
+            }
+        }
+    }
+
+    // Ensure the thead remains visible even after filtering
+    var headerRow = table.querySelector("thead tr");
+    if (headerRow) {
+        headerRow.style.display = ""; // Show the header row
+    }
+}
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var currentUrl = window.location.href;
+    
+    document.querySelectorAll('.nav-links a').forEach(function (link) {
+        if (link.href === currentUrl) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
 </html>
