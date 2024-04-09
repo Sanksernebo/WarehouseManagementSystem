@@ -8,6 +8,7 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="/style.css">
+    <script src="https://kit.fontawesome.com/4d1395116e.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" type="image/x-icon" href="../img/cartehniklogo_svg.svg">
  <title>Laoseis</title>
@@ -75,7 +76,10 @@ else{
 	    ?>
   <tbody>
     <tr>
-      <td> <a href="/src/pdf_generaator/pdf_koostamine.php"><?php echo $row["RegNr"]; ?></a></td>
+        <td>
+            <?php echo $row["RegNr"]; ?>
+            <a href="/src/pdf_generaator/pdf_koostamine.php"><i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i></a>
+        </td>
       <td><?php echo $row["Kuupaev"]; ?></td>
       <td><?php echo $row["Odomeeter"]; ?> km</td>
       <td><?php echo $row["Tehtud_tood"]; ?></td>
