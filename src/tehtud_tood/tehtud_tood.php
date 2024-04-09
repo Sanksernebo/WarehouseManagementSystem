@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC LIMIT 50");
+$result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC LIMIT 50");
 ?>
 <!DOCTYPE html>
 <html>

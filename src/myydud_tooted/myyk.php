@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS Kuupaev, Sisseost, Hind, Summa FROM Ladu_logi ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Sisseost, Hind, Summa FROM Ladu_logi ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
