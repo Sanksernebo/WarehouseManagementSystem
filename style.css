@@ -1,3 +1,7 @@
+@font-face {
+  font-family: Lato;
+  src: url(/src/fonts/Lato/Lato-Regular.ttf);
+}
 /* apply to all devices */
 * {
   box-sizing: border-box;

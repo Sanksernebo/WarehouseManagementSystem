@@ -9,7 +9,6 @@ $result = mysqli_query($conn,"SELECT * FROM ladu ORDER BY ID DESC");
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css">
-    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:400,700' type='text/css'>
     <script src="https://kit.fontawesome.com/4d1395116e.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" type="image/x-icon" href="src/img/cartehniklogo_svg.svg">
