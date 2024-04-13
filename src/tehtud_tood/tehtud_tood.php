@@ -78,7 +78,7 @@ else{
     <tr>
         <td>
             <?php echo $row["RegNr"]; ?>
-            <a href="/src/pdf_generaator/pdf_koostamine.php"><i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i></a>
+            <a href="/src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>" target="_blank"><i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i></a>
         </td>
       <td><?php echo $row["Kuupaev"]; ?></td>
       <td><?php echo $row["Odomeeter"]; ?> km</td>
