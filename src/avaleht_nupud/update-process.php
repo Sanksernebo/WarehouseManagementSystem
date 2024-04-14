@@ -36,6 +36,9 @@ $row= mysqli_fetch_array($result);
         </div>
     </div>
     </nav>
+
+    <h1>Muuda toote andmeid</h1>
+
 <form name="frmUser" method="post" action="">
 <div><?php if(isset($message)) { echo $message; } ?>
 </div>
