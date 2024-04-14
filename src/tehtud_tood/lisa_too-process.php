@@ -47,7 +47,7 @@ if(isset($_POST['submit']))
 Reg.Nr: <br>
 <input type="text" name="RegNr" class="txtField" value="<?php echo $row['RegNr']; ?>">
 <br>
-Odomeeter:<br>
+Kuupäev:<br>
 <input type="date" name="Kuupaev" class="txtField" value="<?php echo $row['Kuupaev']; ?>">
 <br>
 Odomeeter:<br>

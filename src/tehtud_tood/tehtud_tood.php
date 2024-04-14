@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn,"SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -67,7 +67,8 @@ else{
         <td>Auto Reg.Nr</td>
         <td>Kuupäev</td>
         <td>Odomeeter</td>
-        <td width="35%">Tehtud Tööd</td>
+        <td width="50%">Tehtud Tööd</td>
+        <td>Tegevus</td>
     </tr>
   </thead>
     	<?php
@@ -78,11 +79,18 @@ else{
     <tr>
         <td>
             <?php echo $row["RegNr"]; ?>
-            <a href="/src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>" target="_blank"><i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i></a>
+            <a href="/src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>" target="_blank">
+                <i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i>
+            </a>
         </td>
       <td><?php echo $row["Kuupaev"]; ?></td>
       <td><?php echo $row["Odomeeter"]; ?> km</td>
       <td><?php echo $row["Tehtud_tood"]; ?></td>
+      <td>
+        <a href="/src/tehtud_tood/edit-work-process.php?Auto_id=<?php echo $row["Auto_id"]; ?>">
+            <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
+        </a>
+      </td>
     </tr>
   </tbody>
 		<?php

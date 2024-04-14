@@ -189,6 +189,7 @@ form{
 form input[type="text"],
 form input[type="number"],
 form input[type="date"],
+form input[type="datetime"],
 form textarea,
 form select,
 #myInput

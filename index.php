@@ -61,7 +61,7 @@ else{
 
 ?>
 <h1>Laoseis</h1>
-<a href="src/lisa_lattu/lisa_lattu-process.php" class="lisa-link">Lisa Laoseisu</a>
+<a href="src/lisa_lattu/lisa_lattu.php" class="lisa-link">Lisa Laoseisu</a>
 <input type="text" id="myInput" onkeyup="search()" placeholder="Sisesta Tootekood">
 <table id=myTable>
     <thead>
@@ -89,7 +89,7 @@ else{
         <td><?php echo $row["Jaehind"]; ?></td>
         <td><?php echo $row["Ost"]; ?></td>
         <td><?php echo $row["Olek"]; ?></td>
-        <td class="button-container">
+        <td>
             <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["ID"]; ?>">
                 <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
             </a>
