@@ -34,7 +34,7 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
         </div>
     </div>
     </nav>
-    <h1>Müüdud Rehvid</h1>
+    <h1>Rehvid Laos</h1>
     <a href="lisa_rehv_ladu.php" class="lisa-link">Lisa Laoseisu</a>
     <input type="text" id="myInput" onkeyup="search()" placeholder="Otsi Reg.Nr">
     <table id=myTable>
