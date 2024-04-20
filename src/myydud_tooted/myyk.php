@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Sisseost, Hind, Summa FROM Ladu_logi ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Sisseost, Hind, Summa FROM Ladu_logi ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -59,7 +59,7 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuup
             <td><?php echo $row["Tootekood"]; ?></td>
             <td><?php echo $row["Nimetus"]; ?></td>
             <td><?php echo $row["Kogus"]; ?></td>
-            <td><?php echo $row["Kuupaev"]; ?></td>
+            <td><?php echo $row["FormattedDate"]; ?></td>
             <td><?php echo $row["Sisseost"]; ?></td>
             <td><?php echo $row["Hind"]; ?></td>
             <td><?php echo $row["Summa"]; ?></td>

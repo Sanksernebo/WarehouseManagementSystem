@@ -29,7 +29,7 @@
     </div>
     </nav>
 
-    <h1>Lisa Müüdud Rehvid</h1>
+    <h1>Lisa Rehvid Lattu</h1>
 	<form method="post" action="rehv_ladu-process.php">
 		Auto Reg.Nr:<br>
 		<input type="text" name="RegNr">

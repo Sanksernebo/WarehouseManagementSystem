@@ -1,13 +1,47 @@
 <?php
 include_once '../db/laoseis.php';
-if(count($_POST)>0) {
-mysqli_query($conn,"UPDATE Ladu set ID='" . $_POST['ID'] . "',Tootekood='" . $_POST['Tootekood'] . "', Nimetus='" . $_POST['Nimetus'] . "', Kogus='" . $_POST['Kogus'] . "' ,Sisseost='" . $_POST['Sisseost'] . "', Jaehind='" . $_POST['Jaehind'] . "',Lopphind='" . $_POST['Lopphind'] . "', Ost='" . $_POST['Ost'] . "',Olek='" . $_POST['Olek'] . "' WHERE ID='" . $_POST['ID'] . "'");
-$message = "Edukalt uuendatud!";
-header("Location: ../../index.php");
+
+if (count($_POST) > 0) {
+    // Prepare an SQL statement for execution
+    $stmt = mysqli_prepare($conn, "UPDATE Ladu SET Tootekood=?, Nimetus=?, Kogus=?, Sisseost=?, Jaehind=?, Lopphind=?, Ost=?, Olek=? WHERE ID=?");
+
+    // Bind variables to a prepared statement as parameters
+    mysqli_stmt_bind_param($stmt, 'ssddsdssi', $_POST['Tootekood'], $_POST['Nimetus'], $_POST['Kogus'], $_POST['Sisseost'], $_POST['Jaehind'], $_POST['Lopphind'], $_POST['Ost'], $_POST['Olek'], $_POST['ID']);
+
+    // Execute the prepared statement
+    mysqli_stmt_execute($stmt);
+
+    // Check if the statement was successful
+    if (mysqli_stmt_affected_rows($stmt) > 0) {
+        $message = "Edukalt uuendatud!";
+    } else {
+        $message = "Uuendamine ebaõnnestus: " . mysqli_stmt_error($stmt);
+    }
+
+    // Close the statement
+    mysqli_stmt_close($stmt);
+
+    // Redirect after update
+    header("Location: ../../index.php");
+    exit;
 }
-$result = mysqli_query($conn,"SELECT * FROM Ladu WHERE ID='" . $_GET['ID'] . "'");
-$row= mysqli_fetch_array($result);
+
+// Securely fetch data if ID is provided via GET
+if (isset($_GET['ID'])) {
+    $stmt = mysqli_prepare($conn, "SELECT * FROM Ladu WHERE ID = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $_GET['ID']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_array($result)) {
+        // Record is fetched and stored in $row
+    } else {
+        echo "Error: Toodet ei leitud";
+        exit;
+    }
+    mysqli_stmt_close($stmt);
+}
 ?>
+
 <html>
 <head>
     <link rel="stylesheet" href="/style.css">

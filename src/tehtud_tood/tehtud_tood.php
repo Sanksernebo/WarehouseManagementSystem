@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn, "SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -83,7 +83,7 @@ else{
                 <i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i>
             </a>
         </td>
-      <td><?php echo $row["Kuupaev"]; ?></td>
+      <td><?php echo $row["FormattedDate"]; ?></td>
       <td><?php echo $row["Odomeeter"]; ?> km</td>
       <td><?php echo $row["Tehtud_tood"]; ?></td>
       <td>

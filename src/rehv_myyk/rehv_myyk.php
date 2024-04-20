@@ -1,6 +1,6 @@
 <?php
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS Kuupaev, Kogus, UPPER(Moot) AS Moot,Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Kogus, UPPER(Moot) AS Moot,Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC");
 ?>
     <!DOCTYPE html>
 <html>
@@ -61,7 +61,7 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
                     <td><?php echo $row["Kogus"]; ?> tk</td>
                     <td><?php echo $row["Hooaeg"]; ?></td>
                     <td><?php echo $row["Tarnija"]; ?></td>
-                    <td><?php echo $row["Kuupaev"]; ?></td>
+                    <td><?php echo $row["FormattedDate"]; ?></td>
                 </tr>
             </tbody>
             <?php
