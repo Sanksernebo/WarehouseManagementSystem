@@ -1,25 +1,34 @@
 <?php
-global $row;
 include_once '../db/laoseis.php';
-if(isset($_POST['submit']))
-{	 
-	 $RegNr = $_POST['RegNr'];
-	 $Kuupaev = $_POST['Kuupaev'];
-	 $Kogus = $_POST['Kogus'];
-	 $Moot = $_POST['Moot'];
+$message = '';
+
+if (isset($_POST['submit'])) {
+    $RegNr = $_POST['RegNr'];
+    $Kuupaev = $_POST['Kuupaev'];
+    $Kogus = $_POST['Kogus'];
+    $Moot = $_POST['Moot'];
     $Tootja = $_POST['Tootja'];
     $hooaeg = $_POST['hooaeg'];
     $tarnija = $_POST['tarnija'];
 
-
-	 $sql = "INSERT INTO Rehvi_myyk (RegNr,Moot,Tootja,Kogus,Hooaeg,Tarnija,Kuupaev)
-	 VALUES ('$RegNr','$Moot','$Tootja','$Kogus','$hooaeg','$tarnija','$Kuupaev')";
-	 $message = "Sisestatud edukalt";
-	 if (mysqli_query($conn, $sql)) {
-	    $message = "Sisestatud edukalt";
-         header("Location: rehv_myyk/rehv_myyk.php");
-         exit();
+    $sql = "INSERT INTO Rehvi_myyk (RegNr, Moot, Tootja, Kogus, Hooaeg, Tarnija, Kuupaev)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sssssss", $RegNr, $Moot, $Tootja, $Kogus, $hooaeg, $tarnija, $Kuupaev);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        mysqli_close($conn);
+        header("Location: rehv_myyk.php");
+        exit();
+    } else {
+        $message = "Tulemusi ei leitud";
+    }
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+}
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Rehvi Müügi Sisestus</title>
@@ -30,7 +39,7 @@ if(isset($_POST['submit']))
     <link rel="icon" type="image/x-icon" href="img/cartehniklogo_svg.svg">
 </head>
 <body>
-<nav><nav>
+    <nav>
         <a href="../../index.php">Avaleht</a>
         <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
         <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
@@ -44,33 +53,12 @@ if(isset($_POST['submit']))
             </div>
         </div>
     </nav>
-
-<footer>
-    <p>Rõngu Auto OÜ</p>
-    <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script></p>
-</footer>
+    <?php if (!empty($message)): ?>
+        <p style="font-weight: bold;"><?php echo $message; ?></p>
+    <?php endif; ?>
+    <footer>
+        <p>Rõngu Auto OÜ</p>
+        <p>Copyright &copy; <script>document.write(new Date().getFullYear());</script></p>
+    </footer>
 </body>
 </html>
-<?php
-	 }
-     else{
-        echo "<p style=font-weight:bold>Tulemusi ei leitud </p>";
-        echo "
-    <nav>
-        <a href=index.php>Avaleht</a>
-        <a href=src/myydud_tooted/myyk.php>Müüdud Tooted</a>
-        <a href=src/tehtud_tood/tehtud_tood.php>Tehtud Tööd</a>
-        <div class=dropdown>
-            <button class=dropbtn>Rehvid
-                <i class=fa fa-caret-down></i>
-            </button>
-            <div class=dropdown-content>
-                <a href=src/rehv_myyk/rehv_myyk.php>Müüdud Rehvid</a>
-                <a href=src/rehv_ladu/rehv_ladu.php>Rehvid Laos</a>
-            </div>
-        </div>
-    </nav>";
-    }
-	 mysqli_close($conn);
-}
-?>

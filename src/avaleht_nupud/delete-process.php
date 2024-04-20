@@ -77,8 +77,9 @@ if(isset($_POST['confirm_delete'])) {
     <label for="Olek">Olek:</label>
 
     <input type="text" id="Olek" name="Olek" value="<?php echo $row['Olek']; ?>" readonly><br>
-
+    <div class="formButton">
     <input type="submit" name="confirm_delete" value="Kinnita Kustutamine">
+    </div>
 </div>
 </form>
 

@@ -62,7 +62,9 @@
 		    <option value="Tagastus">Tagastus</option>
 		</select>
 		<br><br>
+		<div class="formButton">
 		<input type="submit" name="submit" value="Sisesta">
+		</div>
 	</form>
 <footer>
     <p>Rõngu Auto OÜ</p>

@@ -2,6 +2,10 @@
   font-family: Lato;
   src: url(/src/fonts/Lato/Lato-Regular.ttf);
 }
+@font-face {
+  font-family: LatoBold;
+  src: url(/src/fonts/Lato/Lato-Bold.ttf);
+}
 /* apply to all devices */
 * {
   box-sizing: border-box;
@@ -52,7 +56,6 @@ nav {
   padding: 10px 15px;
   border-radius: 5px;
   margin-left: 12px;
-  transition: background-color 0.3s ease; /* Added transition for hover effect */
 }
 
 .nav-links a:hover {
@@ -62,7 +65,7 @@ nav {
 
 nav .active {
   background-color: #89CEEE;
-  color: #fff;
+  color: #000;
 }
 
 .logo {
@@ -72,8 +75,10 @@ nav .active {
 .logo img {
   display: block;
   height: auto;
-  max-height: 100px;
+  scale: 3;
   width: 50px;
+  padding-left: 10px;
+  padding-top: 5px;
 }
 
 .logo a {
@@ -99,8 +104,8 @@ nav .active {
     color: white;
     padding: 14px 16px;
     background-color: inherit;
-    font-family: inherit; /* Important for vertical align on mobile phones */
-    margin: 0; /* Important for vertical align on mobile phones */
+    font-family: inherit;
+    margin: 0;
 }
 .nav-links .dropdown.active .dropbtn {
   background-color: #89CEEE;
@@ -114,8 +119,10 @@ nav .active {
     background-color: #f9f9f9;
     min-width: 160px;
     border-radius: 5px;
+    border-top-right-radius: 0px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
+    right: 10px
 }
 
 /* Links inside the dropdown */
@@ -152,38 +159,78 @@ h1 {
     padding: 5px;
     margin: 3px;
 }
+
+/* Table layout */
 table {
-  border-collapse: collapse;
   width: 100%;
-  padding: 10px;
+  margin: 0px;
+  border-collapse: separate;
+  border-spacing: 0px 25px;
 }
 
-td, tr{
-  border: 1px solid #666;
-  text-align: left;
-  padding: 20px;
-  text-align:center;
-  vertical-align:middle;
-   overflow-wrap: break-word;
+/* Table Header */
+table thead tr {
+  background-color: #f5f5f5;
+  color: #000;
+  box-shadow: 0 6px 12px rgba(137, 206, 238, 0.7);
+  text-align: center;
 }
 
-tr:nth-child(even) {
-  background-color: #f2f2f2;
+table thead td {
+  padding: 30px;
+  border: 1px solid #89CEEE;
+  border-right: 0px;
 }
 
-tr:hover {
-  background-color: #dddddd;
+table thead td:last-child {
+  border-right: 1px solid #89CEEE;
 }
+
+/* Table Body */
+table tbody tr {
+  background-color: #f5f5f5;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(137, 206, 238, 0.7);
+}
+
+table tbody td {
+  padding: 30px;
+  text-align: center;
+  vertical-align: middle; 
+  border: none;
+
+}
+
+/* First Cell in Each Row */
+table tbody tr td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+/* Last Cell in Each Row */
+table tbody tr td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Hover effect for each row */
+table tbody tr:hover {
+  background-color: rgba(195, 195, 195, 0.4);
+  box-shadow: 0 6px 12px rgba(137, 206, 238, 0.7);
+}
+
 
 form{
-    font: 95% Arial, Helvetica, sans-serif;
-    max-width: 400px;
+    font: 95% 'Lato', sans-serif;
+    max-width: 500px;
     margin-bottom:50px;
     margin-top: 40px;
     margin-left: auto;
     margin-right:auto;
-    padding: 16px;
-    background: #F7F7F7;
+    padding: 40px 80px 20px;
+    border-radius: 15px;
+    background: #89CEEE;
 }
 
 form input[type="text"],
@@ -191,9 +238,7 @@ form input[type="number"],
 form input[type="date"],
 form input[type="datetime"],
 form textarea,
-form select,
-#myInput
-{
+form select {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -205,13 +250,46 @@ form select,
     width: 100%;
     background: #fff;
     margin-bottom: 4%;
-    border: 1px solid #ccc;
-    padding: 3%;
-    color: #555;
-    font: 95% Arial, Helvetica, sans-serif;
+    border: 1px solid #f5f5f5;
+    border-radius: 8px;
+    padding: 10px;
+    color: #000;
+    font: 95% 'Lato', sans-serif;
 }
 
-#myInput{
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form input[type="date"]:focus,
+form textarea:focus,
+form select:focus
+{
+  box-shadow: 0 0 5px #333;
+  padding: 3%;
+  border: 1px solid #333;
+}
+
+ /* Form button */
+  form input[type="submit"]{
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 75%;
+    padding: 3%;
+    background: #333;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+  }
+  form input[type="submit"]:hover{
+    background-color: rgba(51,51, 51, 0.8); 
+    cursor: pointer;
+  }
+  .formButton {
+    text-align: center;
+  }
+
+  /* Search bar */
+  #searchBar{
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -221,88 +299,47 @@ form select,
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     width: 100%;
-    background: #fff;
-    margin-bottom: 10px;
+    background: #c3c3c3;
     border: 1px solid #ccc;
-    padding: 1%;
-    color: #555;
-    font: 95% Arial, Helvetica, sans-serif;
-}
+    padding: 15px;
+    color: #000;
+    font: 95% 'Lato', sans-serif;
+  }
+  
+  #searchBar:focus{
+    box-shadow: 0 0 5px #89CEEE;
+    padding: 20px;
+    border: 1px solid #89CEEE;
+  }
 
-#myInput:focus{
-    box-shadow: 0 0 5px #43D1AF;
-    padding: 1.5%;
-    border: 1px solid #43D1AF;
-}
-
-form input[type="text"]:focus,
-form input[type="number"]:focus,
-form input[type="date"]:focus,
-form textarea:focus,
-form select:focus
-{
-    box-shadow: 0 0 5px #43D1AF;
-    padding: 3%;
-    border: 1px solid #43D1AF;
-}
-
-form input[type="submit"]{
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    width: 100%;
-    padding: 3%;
-    background: #43D1AF;
-    border-bottom: 2px solid #30C29E;
-    border-top-style: none;
-    border-right-style: none;
-    border-left-style: none;
-    color: #fff;
-}
-form input[type="submit"]:hover{
-    background: #2EBC99;
-}
-
-.muuda-icon, .kustuta-icon, .pdf-icon {
-  margin: 5px;
-  color: #333;
-}
-
+  .muuda-icon, .kustuta-icon, .pdf-icon {
+    margin: 5px;
+    color: #333;
+  }
+  
 .muuda-icon:hover, .kustuta-icon:hover, .pdf-icon:hover {
   margin: 5px;
   color:#89CEEE;
 }
 
 .lisa-link{
-    display: flex;
-    justify-content: center;
-    background-color: #99c5b5;
-    color:#fff;
-    font-weight:bold;
+  background: #89CEEE;
+  color: #000;
+  padding: 15px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
     font-size: 16px;
-    padding: 16px;
-    padding-right:30px;
-    padding-left:30px;
     margin: 5px;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     text-decoration:none;
-    border-radius:10px;
+    border-radius: 22px;
 }
 
 .lisa-link:hover {
-    background-color: #427663;
+    background-color: rgba(137,206, 235, 0.6); 
 }
-
-
-.kustuta-link {
-  background-color: #CC0000;
-}
-
-.info-link {
-  background-color: navy;
-}
-
-
 
 footer {
   position: fixed;

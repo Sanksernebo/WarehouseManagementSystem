@@ -62,7 +62,7 @@ else{
 ?>
 <h1>Laoseis</h1>
 <a href="src/lisa_lattu/lisa_lattu.php" class="lisa-link">Lisa Laoseisu</a>
-<input type="text" id="myInput" onkeyup="search()" placeholder="Sisesta Tootekood">
+<input type="text" id="searchBar" onkeyup="search()" placeholder="Sisesta Tootekood">
 <table id=myTable>
     <thead>
         <tr>
@@ -81,22 +81,22 @@ else{
     	while($row = mysqli_fetch_array($result)) {
 	    ?>
     <tbody>
-	<tr>
-        <td><?php echo $row["Tootekood"]; ?></td>
-        <td><?php echo $row["Nimetus"]; ?></td>
-        <td><?php echo $row["Kogus"]; ?></td>
-        <td><?php echo $row["Sisseost"]; ?></td>
-        <td><?php echo $row["Jaehind"]; ?></td>
-        <td><?php echo $row["Ost"]; ?></td>
-        <td><?php echo $row["Olek"]; ?></td>
-        <td>
-            <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["ID"]; ?>">
-                <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
-            </a>
-            <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["ID"]; ?>">
-            <i class="fa-solid fa-trash fa-lg kustuta-icon"></i>
-            </a>
-        </td>
+	    <tr>
+            <td><?php echo $row["Tootekood"]; ?></td>
+            <td><?php echo $row["Nimetus"]; ?></td>
+            <td><?php echo $row["Kogus"]; ?></td>
+            <td><?php echo $row["Sisseost"]; ?></td>
+            <td><?php echo $row["Jaehind"]; ?></td>
+            <td><?php echo $row["Ost"]; ?></td>
+            <td><?php echo $row["Olek"]; ?></td>
+            <td>
+                <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["ID"]; ?>">
+                    <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
+                </a>
+                <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["ID"]; ?>">
+                <i class="fa-solid fa-trash fa-lg kustuta-icon"></i>
+                </a>
+            </td>
         </tr>
     </tbody>
 	<?php
@@ -112,7 +112,7 @@ else{
  <script>
 function search() {
     var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("myInput");
+    input = document.getElementById("searchBar");
     filter = input.value.toUpperCase();
     table = document.getElementById("myTable");
     tr = table.getElementsByTagName("tr");

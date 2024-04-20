@@ -80,7 +80,9 @@ Tehtud Hind:<br>
     <option value="Tagastus" <?php if($row['Olek'] == 'Tagastus') echo 'selected'; ?>>Tagastus</option>
 </select>
 <br>
+<div class="formButton">
 <input type="submit" name="submit" value="Uuenda" class="buttom">
+</div>
 </div>
 </form>
 

@@ -36,7 +36,7 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
     </nav>
     <h1>Rehvid Laos</h1>
     <a href="lisa_rehv_ladu.php" class="lisa-link">Lisa Laoseisu</a>
-    <input type="text" id="myInput" onkeyup="search()" placeholder="Otsi Reg.Nr">
+    <input type="text" id="searchBar" onkeyup="search()" placeholder="Otsi Reg.Nr">
     <table id=myTable>
         <thead>
             <tr>
@@ -74,7 +74,7 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
         <script>
             function search() {
     var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("myInput");
+    input = document.getElementById("searchBar");
     filter = input.value.toUpperCase();
     table = document.getElementById("myTable");
     tr = table.getElementsByTagName("tr");

@@ -38,28 +38,33 @@ $result = mysqli_query($conn,"SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuup
         ?>
 <h1>Müüdud Tooted</h1>
 <table>
-	<tr>
-    	<td>Tootekood</td>
-    	<td>Nimetus</td>
-    	<td>Kogus</td>
-    	<td>Kuupäev</td>
-    	<td>Sisseostu Hind</td>
-    	<td>Hind</td>
-    	<td>Summa</td>
+    <thead>
+        <tr>
+            <td>Tootekood</td>
+            <td>Nimetus</td>
+            <td>Kogus</td>
+            <td>Kuupäev</td>
+            <td>Sisseostu Hind</td>
+            <td>Hind</td>
+            <td>Summa</td>
 
-	</tr>
-    	<?php
+        </tr>
+    </thead>
+    <?php
     	$i=0;
     	while($row = mysqli_fetch_array($result)) {
 	    ?>
-	<tr class="<?php if(isset($classname)) echo $classname;?>">
-	<td><?php echo $row["Tootekood"]; ?></td>
-	<td><?php echo $row["Nimetus"]; ?></td>
-	<td><?php echo $row["Kogus"]; ?></td>
-	<td><?php echo $row["Kuupaev"]; ?></td>
-	<td><?php echo $row["Sisseost"]; ?></td>
-    <td><?php echo $row["Hind"]; ?></td>
-	<td><?php echo $row["Summa"]; ?></td>
+    <tbody>
+        <tr>
+            <td><?php echo $row["Tootekood"]; ?></td>
+            <td><?php echo $row["Nimetus"]; ?></td>
+            <td><?php echo $row["Kogus"]; ?></td>
+            <td><?php echo $row["Kuupaev"]; ?></td>
+            <td><?php echo $row["Sisseost"]; ?></td>
+            <td><?php echo $row["Hind"]; ?></td>
+            <td><?php echo $row["Summa"]; ?></td>
+        </tr>
+    </tbody>
 		<?php
 	$i++;
 	}

@@ -43,7 +43,9 @@
 		<textarea type="text" name="Tehtud_tood" rows="4" cols="48"></textarea>
 
 		<br><br>
+        <div class="formButton">
 		<input type="submit" name="submit" value="Sisesta">
+        </div>
 	</form>
 <footer>
     <p>Rõngu Auto OÜ</p>
