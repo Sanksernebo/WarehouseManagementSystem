@@ -1,4 +1,11 @@
 <?php
+session_start();
+// Check if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page
+    header("Location: src/login/login.php");
+    exit;
+}
 global $conn;
 include_once 'src/db/laoseis.php';
 $result = mysqli_query($conn,"SELECT * FROM ladu ORDER BY ID DESC");
@@ -34,6 +41,12 @@ $result = mysqli_query($conn,"SELECT * FROM ladu ORDER BY ID DESC");
                 <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
+        <a href="src/login/logout.php">
+            <?php if (isset($_SESSION['username'])): ?>
+                <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
+                <?php endif; ?>
+        Logi välja
+        </a>
     </div>
 </nav>
 

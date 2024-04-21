@@ -1,4 +1,11 @@
 <?php
+session_start();
+// Check if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page
+    header("Location: ../login/login.php");
+    exit;
+}
 include_once '../db/laoseis.php';
 $message = '';
 
@@ -45,6 +52,12 @@ if (!isset($_POST['submit']) || !empty($message)) :
 </head>
 <body>
 <nav>
+	<div class="logo">
+			<a href="../../index.php">
+				<img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+			</a>
+	</div>
+	<div class="nav-links">
         <a href="../../index.php">Avaleht</a>
         <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
         <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
@@ -57,7 +70,13 @@ if (!isset($_POST['submit']) || !empty($message)) :
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
-        <a href="/src/lisa_lattu/lisa_lattu.php" class="active">Lisa Toode</a>
+        <a href="../login/logout.php">
+                <?php if (isset($_SESSION['username'])): ?>
+                <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
+                <?php endif; ?>
+        Logi välja
+        </a>
+    </div>
     </nav>
 <footer>
     <p>Rõngu Auto OÜ</p>

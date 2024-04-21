@@ -1,4 +1,11 @@
 <?php
+session_start();
+// Check if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page
+    header("Location: ../login/login.php");
+    exit;
+}
 include_once '../db/laoseis.php';
 $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Omanik, Kogus, Hooaeg FROM Rehvi_ladu ORDER BY Kuupaev DESC");
 ?>
@@ -14,25 +21,31 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
  </head>
 <body>
 <nav>
-	<div class="logo">
-			<a href="../../index.php">
-				<img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
-			</a>
-	</div>
-	<div class="nav-links">
-        <a href="../../index.php">Avaleht</a>
-        <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-        <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-        <div class="dropdown">
-            <button class="dropbtn">Rehvid
-                <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+      <div class="logo">
+                <a href="../../index.php">
+                    <img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+                </a>
+      </div>
+        <div class="nav-links">
+            <a href="../../index.php">Avaleht</a>
+            <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+            <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
+            <div class="dropdown">
+                <button class="dropbtn">Rehvid
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+                    <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+                </div>
             </div>
+            <a href="../login/logout.php">
+                <?php if (isset($_SESSION['username'])): ?>
+                    <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
+                    <?php endif; ?>
+            Logi välja
+            </a>
         </div>
-    </div>
     </nav>
     <h1>Rehvid Laos</h1>
     <a href="lisa_rehv_ladu.php" class="lisa-link">Lisa Laoseisu</a>

@@ -1,4 +1,11 @@
 <?php
+session_start();
+// Check if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page
+    header("Location: ../login/login.php");
+    exit;
+}
 include_once '../db/laoseis.php';
 
 // Using prepared statements to safely fetch data
@@ -62,6 +69,12 @@ if (isset($_POST['confirm_delete'])) {
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
+        <a href="../login/logout.php">
+                <?php if (isset($_SESSION['username'])): ?>
+                <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
+                <?php endif; ?>
+        Logi välja
+        </a>
     </div>
 </nav>
 <h1> Kustuta toode laost </h1>

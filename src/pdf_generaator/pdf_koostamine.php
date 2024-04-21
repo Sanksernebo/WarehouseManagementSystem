@@ -1,4 +1,11 @@
 <?php
+session_start();
+// Check if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page
+    header("Location: ../login/login.php");
+    exit;
+}
 require_once('../TCPDF/tcpdf.php');
 
 // Extend the TCPDF class to create custom Header and Footer

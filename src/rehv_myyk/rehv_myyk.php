@@ -1,4 +1,11 @@
 <?php
+session_start();
+// Check if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page
+    header("Location: ../login/login.php");
+    exit;
+}
 include_once '../db/laoseis.php';
 $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Kogus, UPPER(Moot) AS Moot,Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC");
 ?>
@@ -32,6 +39,12 @@ $result = mysqli_query($conn,"SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev,
                 <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
             </div>
         </div>
+        <a href="../login/logout.php">
+                <?php if (isset($_SESSION['username'])): ?>
+                <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
+                <?php endif; ?>
+        Logi välja
+        </a>
     </div>
     </nav>
     <h1>Müüdud Rehvid</h1>
