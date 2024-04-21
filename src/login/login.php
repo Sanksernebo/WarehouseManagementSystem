@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <nav>
     <div class="logo">
-        <a href="../index.php">
+        <a href="../../index.php">
             <img src="../img/cartehniklogo_valge.svg" alt="Cartehnik logo">
         </a>
     </div>

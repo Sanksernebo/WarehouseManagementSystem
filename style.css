@@ -121,7 +121,7 @@ nav .active {
     border-radius: 5px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
-    right: 50px;
+    right: 100px;
 }
 
 /* Links inside the dropdown */

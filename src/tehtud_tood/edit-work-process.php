@@ -56,7 +56,9 @@ Odomeeter:<br>
 Tehtud Tööd:<br>
 <input type="text" name="Tehtud_tood" class="txtField" value="<?php echo $row['Tehtud_tood']; ?>" rows="4" cols="48">
 <br>
+<div class="formButton">
 <input type="submit" name="submit" value="Uuenda" class="button">
+</div>
 </div>
 </form>
 
