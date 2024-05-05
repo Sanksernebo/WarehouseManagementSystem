@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../login/login.php");
     exit;
 }
-require_once('../TCPDF/tcpdf.php');
+require_once ('../TCPDF/tcpdf.php');
 
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF
@@ -16,8 +16,8 @@ class MYPDF extends TCPDF
     {
         // set header data
         $img_file = '../../src/img/cartehniklogo_must.png';
-        $txt ='Rõngu Auto OÜ';
-        $txt2 ='Aia 4-24 Rõngu, Elva vald, Tartumaa';
+        $txt = 'Rõngu Auto OÜ';
+        $txt2 = 'Aia 4-24 Rõngu, Elva vald, Tartumaa';
         // display header image
         $this->Image($img_file, 12, -10, 50, '', 'PNG', '', 'T', false, 300, '', false, false, 0);
         // Set font and size for the text
@@ -30,24 +30,25 @@ class MYPDF extends TCPDF
         $this->SetY($this->GetY() + 20); // Adjust vertical position as needed
         $this->MultiCell($text_width, 5, $txt, 0, 'R', false);
         $this->MultiCell($text_width, 5, $txt2, 0, 'R', false);
-        
+
         // add line to indicate end of header
         $this->Line(10, 22, 200, 22);
     }
     // Page footer
-    public function Footer() {
+    public function Footer()
+    {
         // Position at 15 mm from bottom
         $this->SetY(-15);
         $this->Line(10, 282, 200, 282);
         // Set font
         $this->SetFont('helvetica', 'I', 8);
         // Page number
-        $this->Cell(0, 10, $this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 10, $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
     }
 }
 
 // Get the RegNr from the GET parameter
-if(isset($_GET['RegNr'])) {
+if (isset($_GET['RegNr'])) {
     $RegNr = $_GET['RegNr'];
 
     // Fetch data from the database based on RegNr
@@ -55,13 +56,13 @@ if(isset($_GET['RegNr'])) {
     $query = "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood WHERE UPPER(RegNr) = UPPER('$RegNr')";
     $result = mysqli_query($conn, $query);
 
-    if(mysqli_num_rows($result) > 0) {
+    if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
-        
+
         // Create PDF using TCPDF
         $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetTitle('Tehtud Töö PDF: '. $RegNr);
+        $pdf->SetTitle('Tehtud Töö PDF: ' . $RegNr);
         $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
@@ -79,7 +80,7 @@ if(isset($_GET['RegNr'])) {
 
         // Set font for Kuupäev
         $pdf->SetFont('Lato-Regular', '', 12);
-        $pdf->Cell(0, 10,''. $row['Kuupaev'], 0, 1, 'R');
+        $pdf->Cell(0, 10, '' . $row['Kuupaev'], 0, 1, 'R');
         $pdf->Ln(10);
 
         // Set font for body
@@ -90,7 +91,7 @@ if(isset($_GET['RegNr'])) {
         $pdf->Ln(2);
 
 
-$html = '
+        $html = '
             <table border="1" cellpadding="10">
                 <thead>
                     <tr>
@@ -99,16 +100,16 @@ $html = '
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="font-size:12px">'.$row['Tehtud_tood'].'</td>
+                        <td style="font-size:12px">' . $row['Tehtud_tood'] . '</td>
                     </tr>
                 </tbody>
             </table>';
 
-// output the HTML content
-$pdf->writeHTML($html, true, false, true, false, '');
+        // output the HTML content
+        $pdf->writeHTML($html, true, false, true, false, '');
 
         // Output PDF: I = internal, D = download
-        $pdf->Output('Tehtud_too_'.$RegNr.'.pdf', 'I');
+        $pdf->Output('Tehtud_too_' . $RegNr . '.pdf', 'I');
     } else {
         echo 'Error: Andmeid ei leitud.';
     }

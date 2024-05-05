@@ -34,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['pa
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
     <meta charset="utf-8">
@@ -44,48 +45,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['pa
     <title>Loo kasutaja</title>
     <link rel="stylesheet" href="../style.css">
 </head>
+
 <body>
-<nav>
-	<div class="logo">
-			<a href="../../index.php">
-				<img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
-			</a>
-	</div>
-	<div class="nav-links">
-        <a href="../../index.php">Avaleht</a>
-        <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-        <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-        <div class="dropdown">
-            <button class="dropbtn">Rehvid
-                <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+    <nav>
+        <div class="logo">
+            <a href="../../index.php">
+                <img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="../../index.php">Avaleht</a>
+            <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+            <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
+            <div class="dropdown">
+                <button class="dropbtn">Rehvid
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+                    <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+                </div>
             </div>
+            <a href="../login/logout.php">Logi välja</a>
         </div>
-        <a href="../login/logout.php">Logi välja</a>
-    </div>
     </nav>
-<div>
-    <form action="loo_kasutaja.php" method="post">
-        <h1>Loo Uus Kasutaja</h1>
-        <div>
-            <label for="username">Kasutajanimi:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Parool:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div class="formButton">
-            <input type="submit" value="Loo kasutaja"></input>
-        </div>
-    </form>
-</div>
-<footer>
-    <p>Rõngu Auto OÜ</p>
-    <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script></p>
-</footer>
+    <div>
+        <form action="loo_kasutaja.php" method="post">
+            <h1>Loo Uus Kasutaja</h1>
+            <div>
+                <label for="username">Kasutajanimi:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Parool:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="formButton">
+                <input type="submit" value="Loo kasutaja"></input>
+            </div>
+        </form>
+    </div>
+    <footer>
+        <p>Rõngu Auto OÜ</p>
+        <p>Copyright &copy;
+            <script>document.write(new Date().getFullYear())</script>
+        </p>
+    </footer>
 </body>
+
 </html>
