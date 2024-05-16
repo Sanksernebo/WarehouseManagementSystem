@@ -82,7 +82,7 @@ if (isset($_POST['submit'])) {
             <input type="text" name="RegNr" class="txtField">
             <br>
             Kuupäev:<br>
-            <input type="date" name="Kuupaev" class="txtField">
+            <input type="datetime" name="Kuupaev" class="txtField">
             <br>
             Odomeeter:<br>
             <input type="number" name="Odomeeter" class="txtField">

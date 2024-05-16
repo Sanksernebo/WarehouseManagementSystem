@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn, "SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -15,7 +15,7 @@ $result = mysqli_query($conn, "SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMA
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
     <meta charset="utf-8">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="../../style.css">
     <script src="https://kit.fontawesome.com/4d1395116e.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" type="image/x-icon" href="../img/cartehniklogo_svg.svg">
@@ -26,20 +26,20 @@ $result = mysqli_query($conn, "SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMA
     <nav>
         <div class="logo">
             <a href="../../index.php">
-                <img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+                <img src="../../src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
             </a>
         </div>
         <div class="nav-links">
             <a href="../../index.php">Avaleht</a>
-            <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-            <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
+            <a href="../../src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+            <a href="../../src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
             <div class="dropdown">
                 <button class="dropbtn">Rehvid
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                    <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+                    <a href="../../src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+                    <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
             <a href="../login/logout.php">
@@ -93,7 +93,7 @@ $result = mysqli_query($conn, "SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMA
                 <tr>
                     <td>
                         <?php echo $row["RegNr"]; ?>
-                        <a href="/src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>" target="_blank">
+                        <a href="../../src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>" target="_blank">
                             <i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i>
                         </a>
                     </td>
@@ -101,7 +101,7 @@ $result = mysqli_query($conn, "SELECT Auto_id, UPPER(RegNr) as RegNr, DATE_FORMA
                     <td><?php echo $row["Odomeeter"]; ?> km</td>
                     <td><?php echo $row["Tehtud_tood"]; ?></td>
                     <td>
-                        <a href="/src/tehtud_tood/edit-work-process.php?Auto_id=<?php echo $row["Auto_id"]; ?>">
+                        <a href="../../src/tehtud_tood/edit-work-process.php?too_id=<?php echo $row["too_id"]; ?>">
                             <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
                         </a>
                     </td>

@@ -11,7 +11,7 @@ include_once '../db/laoseis.php';
 // Using prepared statements to safely fetch data
 if (isset($_GET['ID'])) {
     $id = $_GET['ID'];
-    $stmt = mysqli_prepare($conn, "SELECT * FROM Ladu WHERE ID = ?");
+    $stmt = mysqli_prepare($conn, "SELECT * FROM Ladu WHERE toote_id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -28,7 +28,7 @@ if (isset($_GET['ID'])) {
 // Using prepared statements to safely delete data
 if (isset($_POST['confirm_delete'])) {
     $id = $_POST['ID'];
-    $stmt = mysqli_prepare($conn, "DELETE FROM Ladu WHERE ID = ?");
+    $stmt = mysqli_prepare($conn, "DELETE FROM Ladu WHERE toote_id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $id);
     mysqli_stmt_execute($stmt);
 
@@ -46,8 +46,9 @@ if (isset($_POST['confirm_delete'])) {
 <html>
 
 <head>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="icon" type="image/x-icon" href="img/cartehniklogo_svg.svg">
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/x-icon" href="../img/cartehniklogo_svg.svg">
     <title>Toote andmed</title>
 </head>
 
@@ -55,20 +56,20 @@ if (isset($_POST['confirm_delete'])) {
     <nav>
         <div class="logo">
             <a href="../../index.php">
-                <img src="/src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
+                <img src="../../src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
             </a>
         </div>
         <div class="nav-links">
             <a href="../../index.php">Avaleht</a>
-            <a href="/src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-            <a href="/src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
+            <a href="../../src/myydud_tooted/myyk.php">Müüdud Tooted</a>
+            <a href="../../src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
             <div class="dropdown">
                 <button class="dropbtn">Rehvid
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <a href="/src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                    <a href="/src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
+                    <a href="../../src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
+                    <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
             <a href="../login/logout.php">
@@ -86,10 +87,10 @@ if (isset($_POST['confirm_delete'])) {
         } ?></div>
 
         <div style="padding-bottom:5px;">
-            <input type="hidden" name="ID" value="<?php echo $row['ID']; ?>">
+            <input type="hidden" name="ID" value="<?php echo $row['toote_id']; ?>">
             <label for="ID">ID:</label>
 
-            <input type="text" id="ID" name="ID" value="<?php echo $row['ID']; ?>" readonly><br>
+            <input type="text" id="ID" name="ID" value="<?php echo $row['toote_id']; ?>" readonly><br>
             <label for="Tootekood">Tootekood:</label>
 
             <input type="text" id="Tootekood" name="Tootekood" value="<?php echo $row['Tootekood']; ?>" readonly><br>

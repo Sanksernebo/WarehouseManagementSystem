@@ -1,11 +1,11 @@
 @font-face {
   font-family: Lato;
-  src: url(/src/fonts/Lato/Lato-Regular.ttf);
+  src: url(/WMS_Test/src/fonts/Lato/Lato-Regular.ttf);
 }
 
 @font-face {
   font-family: LatoBold;
-  src: url(/src/fonts/Lato/Lato-Bold.ttf);
+  src: url(WMS_Test/src/fonts/Lato/Lato-Bold.ttf);
 }
 
 /* apply to all devices */

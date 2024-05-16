@@ -20,7 +20,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Bind parameters to the prepared statement as strings or numbers as appropriate
-    mysqli_stmt_bind_param($stmt, 'ssiddisd', $_POST['Tootekood'], $_POST['Nimetus'], $_POST['Kogus'], $_POST['Sisseost'], $_POST['Jaehind'], $_POST['Lopphind'], $_POST['Ost'], $_POST['Olek']);
+    mysqli_stmt_bind_param($stmt, 'ssiddiss', $_POST['Tootekood'], $_POST['Nimetus'], $_POST['Kogus'], $_POST['Sisseost'], $_POST['Jaehind'], $_POST['Lopphind'], $_POST['ost'], $_POST['olek']);
 
     // Execute the prepared statement
     if (mysqli_stmt_execute($stmt)) {

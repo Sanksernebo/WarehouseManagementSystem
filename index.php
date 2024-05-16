@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 global $conn;
 include_once 'src/db/laoseis.php';
-$result = mysqli_query($conn, "SELECT * FROM ladu ORDER BY ID DESC");
+$result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -105,10 +105,10 @@ $result = mysqli_query($conn, "SELECT * FROM ladu ORDER BY ID DESC");
                     <td><?php echo $row["Ost"]; ?></td>
                     <td><?php echo $row["Olek"]; ?></td>
                     <td>
-                        <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["ID"]; ?>">
+                        <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["toote_id"]; ?>">
                             <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
                         </a>
-                        <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["ID"]; ?>">
+                        <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["toote_id"]; ?>">
                             <i class="fa-solid fa-trash fa-lg kustuta-icon"></i>
                         </a>
                     </td>
