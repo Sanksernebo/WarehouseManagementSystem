@@ -51,10 +51,13 @@ if (!isset($_SESSION['user_id'])) {
         <input type="text" name="RegNr">
         <br>
         Kuupäev:<br>
-        <input type="date" name="Kuupaev">
+        <input type="datetime-local" name="Kuupaev">
         <br><br>
         Odomeeter:<br>
-        <input type="number" name="Odomeeter">
+        <div class="odomeeter-container">
+        <input type="number" id="odomeeter" name="Odomeeter" >
+        <span class="odomeeter-km">km</span>
+        </div>
         <br>
         Tehtud Tööd:<br>
         <textarea type="text" name="Tehtud_tood" rows="4" cols="48"></textarea>

@@ -222,6 +222,24 @@ table tbody tr:hover {
   box-shadow: 0 6px 12px rgba(137, 206, 238, 0.7);
 }
 
+/* Odometer container to position the 'km' suffix */
+.odomeeter-container {
+  position: relative;
+}
+
+.odomeeter-container input[type="number"] {
+  padding-right: 40px; /* Space for the 'km' suffix */
+}
+
+.odomeeter-container .odomeeter-km {
+  position: absolute;
+  right: 10px;
+  top: 35%;
+  transform: translateY(-50%);
+  color: #000;
+  font: 95% 'Lato', sans-serif;
+  pointer-events: none; /* Makes sure the 'km' doesn't interfere with clicking */
+}
 
 form {
   font: 95% 'Lato', sans-serif;
@@ -238,7 +256,7 @@ form {
 form input[type="text"],
 form input[type="number"],
 form input[type="date"],
-form input[type="datetime"],
+form input[type="datetime-local"],
 form input[type="password"],
 form textarea,
 form select {
