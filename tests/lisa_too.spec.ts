@@ -56,14 +56,14 @@ test.describe('Tehtud Tööd testid', () => {
         await expect(page.url()).toContain('lisa_too.php');
 
         // Test data for form
-        const RegNr = '911ABC';
-        const Date = '2024-09-23';
+        const RegNr = '69ABC';
+        const Datetime = '2024-09-23T11:00';
         const Odomeeter = '102030';
         const Description = 'Test Test some work';
 
         // Fill the form
         await page.fill('input[name="RegNr"]', RegNr);
-        await page.fill('input[name=Kuupaev]', Date);
+        await page.fill('input[name=Kuupaev]', Datetime);
         await page.fill('input[name="Odomeeter"]', Odomeeter);
         await page.fill('textarea[name="Tehtud_tood"]', Description);
 
