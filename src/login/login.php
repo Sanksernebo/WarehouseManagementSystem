@@ -66,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a href="../rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
+            <a href="../../src/kalender/kalender.php">Töögraafik</a>
     </nav>
     <div>
         <form action="login.php" method="post">

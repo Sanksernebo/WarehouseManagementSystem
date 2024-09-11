@@ -94,8 +94,8 @@ nav .active {
 
 /* The dropdown container */
 .dropdown {
-  float: left;
-  overflow: hidden;
+  position: relative;
+  display: inline-block;
 }
 
 /* Dropdown button */
@@ -124,7 +124,8 @@ nav .active {
   border-radius: 5px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
-  right: 100px;
+  top: 100%;
+  left: 0;
 }
 
 /* Links inside the dropdown */
@@ -228,7 +229,8 @@ table tbody tr:hover {
 }
 
 .odomeeter-container input[type="number"] {
-  padding-right: 40px; /* Space for the 'km' suffix */
+  padding-right: 40px;
+  /* Space for the 'km' suffix */
 }
 
 .odomeeter-container .odomeeter-km {
@@ -238,7 +240,8 @@ table tbody tr:hover {
   transform: translateY(-50%);
   color: #000;
   font: 95% 'Lato', sans-serif;
-  pointer-events: none; /* Makes sure the 'km' doesn't interfere with clicking */
+  pointer-events: none;
+  /* Makes sure the 'km' doesn't interfere with clicking */
 }
 
 form {
@@ -258,6 +261,7 @@ form input[type="number"],
 form input[type="date"],
 form input[type="datetime-local"],
 form input[type="password"],
+form input[type="time"],
 form textarea,
 form select {
   -webkit-transition: all 0.30s ease-in-out;
@@ -372,6 +376,77 @@ form input[type="submit"]:hover {
   text-align: center;
   color: red;
   font-size: 20px;
+}
+
+/* Töögraafiku kalender */
+.calendar-month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  text-align: center;
+}
+
+.calendar-header {
+  font-weight: bold;
+  padding: 10px;
+}
+
+.calendar-day,
+.calendar-empty {
+  padding: 10px;
+  background-color: #89CEEE;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.appointment-count {
+  font-weight: normal;
+}
+
+.calendar-empty {
+  background-color: transparent;
+}
+
+.calendar-navigation {
+  display: flex;
+  justify-content: space-between;
+  /* Space out the elements */
+  align-items: center;
+  margin: 20px 0;
+}
+
+.calendar-navigation .current-month {
+  font-weight: bold;
+}
+
+.daily-view {
+  margin-top: 20px;
+}
+
+.navigation-buttons {
+  display: flex;
+}
+
+.navigation-buttons div {
+  margin-left: 10px;
+  /* Space between buttons */
+}
+
+.navigation-buttons a {
+  padding: 10px 20px;
+  margin-left: 10px;
+  background: #89CEEE;
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  text-decoration: none;
+  /* Remove underline */
+  display: inline-block;
+}
+
+.navigation-buttons a:hover {
+  background: rgba(137, 206, 235, 0.6);
+  /* Lighter color on hover */
 }
 
 footer {

@@ -37,6 +37,7 @@ if (!isset($_SESSION['user_id'])) {
                     <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
+            <a href="../../src/kalender/kalender.php">Töögraafik</a>
             <a href="../login/logout.php">
                 <?php if (isset($_SESSION['username'])): ?>
                     <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>

@@ -42,6 +42,7 @@ $result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT
                     <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
+            <a href="../../src/kalender/kalender.php">Töögraafik</a>
             <a href="../login/logout.php">
                 <?php if (isset($_SESSION['username'])): ?>
                     <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
@@ -93,7 +94,8 @@ $result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT
                 <tr>
                     <td>
                         <?php echo $row["RegNr"]; ?>
-                        <a href="../../src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>" target="_blank">
+                        <a href="../../src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>"
+                            target="_blank">
                             <i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i>
                         </a>
                     </td>

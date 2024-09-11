@@ -43,6 +43,7 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
                     <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
+            <a href="src/kalender/kalender.php">Töögraafik</a>
             <a href="src/login/logout.php">
                 <?php if (isset($_SESSION['username'])): ?>
                     <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>

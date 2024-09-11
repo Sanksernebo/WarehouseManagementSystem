@@ -41,6 +41,7 @@ $result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev
                     <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
                 </div>
             </div>
+            <a href="../../src/kalender/kalender.php">Töögraafik</a>
             <a href="../login/logout.php">
                 <?php if (isset($_SESSION['username'])): ?>
                     <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
