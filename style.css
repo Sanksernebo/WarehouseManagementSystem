@@ -107,7 +107,7 @@ nav .active {
   padding: 14px 16px;
   background-color: inherit;
   font-family: inherit;
-  margin: 0;
+  margin-left: 12px;
 }
 
 .nav-links .dropdown.active .dropbtn {
@@ -125,7 +125,7 @@ nav .active {
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   top: 100%;
-  left: 0;
+  left: 12px;
 }
 
 /* Links inside the dropdown */

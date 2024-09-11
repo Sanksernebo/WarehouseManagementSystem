@@ -98,7 +98,7 @@ if (isset($_GET['too_id'])) {
             <input type="text" name="RegNr" class="txtField" value="<?php echo $row['RegNr']; ?>">
             <br>
             Kuupäev:<br>
-            <input type="datetime" name="Kuupaev" class="txtField" value="<?php echo $row['Kuupaev']; ?>">
+            <input type="datetime-local" name="Kuupaev" class="txtField" value="<?php echo $row['Kuupaev']; ?>">
             <br>
             Odomeeter:<br>
             <input type="number" name="Odomeeter" class="txtField" value="<?php echo $row['Odomeeter']; ?>">
