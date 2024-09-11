@@ -21,7 +21,7 @@ class MYPDF extends TCPDF
         // display header image
         $this->Image($img_file, 12, -10, 50, '', 'PNG', '', 'T', false, 300, '', false, false, 0);
         // Set font and size for the text
-        $this->SetFont('Lato-Regular', '', 10);
+        $this->SetFont('helvetica', '', 10);
 
         // set width of the text
         $text_width = 180;
@@ -41,7 +41,7 @@ class MYPDF extends TCPDF
         $this->SetY(-15);
         $this->Line(10, 282, 200, 282);
         // Set font
-        $this->SetFont('Lato-Regular', 'I', 8);
+        $this->SetFont('helvetica', 'I', 8);
         // Page number
         $this->Cell(0, 10, $this->getAliasNumPage() . '/' . $this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
     }
@@ -74,17 +74,17 @@ if (isset($_GET['RegNr'])) {
         $pdf->AddPage();
 
         // Set font for Title
-        $pdf->SetFont('Lato-Regular', 'B', 20);
+        $pdf->SetFont('helvetica', 'B', 20);
         // Header - Title: Tehtud Tööd - RegNr
         $pdf->Cell(0, 10, 'Tehtud Tööd - ' . $row['RegNr'], 0, 0, 'L');
 
         // Set font for Kuupäev
-        $pdf->SetFont('Lato-Regular', '', 12);
+        $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 10, '' . $row['Kuupaev'], 0, 1, 'R');
         $pdf->Ln(10);
 
         // Set font for body
-        $pdf->SetFont('Lato-Regular', '', 12);
+        $pdf->SetFont('helvetica', '', 12);
         // Body: Reg Nr and Odomeeter
         $pdf->Cell(0, 10, 'RegNr: ' . $row['RegNr'], 0, 0, 'L');
         $pdf->Cell(0, 10, 'Odomeeter: ' . $row['Odomeeter'] . ' km', 0, 1, 'R');
