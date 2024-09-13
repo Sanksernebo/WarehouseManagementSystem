@@ -295,6 +295,17 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'monthly';
             window.location.search = urlParams.toString();
         }
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var currentUrl = window.location.href;
+
+        document.querySelectorAll('.nav-links a').forEach(function (link) {
+            if (link.href === currentUrl) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
 </body>
 
 </html>
