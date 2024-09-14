@@ -68,7 +68,7 @@ function generateCalendar($year, $month, $view, $conn, $selected_date = null)
             // Determine border class based on slots filled
             $border_class = ($all_slots_filled >= 9) ? 'red-border' : (($appointment_count > 0) ? 'green-border' : '');
 
-            echo '<div class="calendar-day ' . $border_class . '" style="background-color: ' . ($border_class == 'red-border' ? 'white' : '#89CEEE') . ';" onclick="openDay(\'' . $current_date . '\')">';
+            echo '<div class="calendar-day ' . $border_class . '" onclick="openDay(\'' . $current_date . '\')">';
             echo $day;
             if ($appointment_count > 0) {
                 echo "<br><span class='appointment-count'>$appointment_count broneeringut</span>";
