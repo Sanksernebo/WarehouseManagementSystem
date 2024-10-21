@@ -94,8 +94,7 @@ $result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT
                 <tr>
                     <td>
                         <?php echo $row["RegNr"]; ?>
-                        <a href="../../src/pdf_generaator/pdf_koostamine.php?RegNr=<?php echo $row['RegNr']; ?>"
-                            target="_blank">
+                        <a href="../../src/pdf_generaator/pdf_koostamine.php?too_id=<?php echo $row['too_id']; ?>" target="_blank">
                             <i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i>
                         </a>
                     </td>
