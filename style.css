@@ -393,10 +393,30 @@ form input[type="submit"]:hover {
 
 .calendar-day,
 .calendar-empty {
+  position: relative;
   padding: 10px;
   background-color: #89CEEE;
   font-weight: bold;
   cursor: pointer;
+}
+
+.time-bar {
+  display: flex;
+  height: 5px;
+  margin-top: 5px;
+}
+
+.time-slot {
+  flex: 1;
+  height: 100%;
+}
+
+.booked {
+  background-color: red;
+}
+
+.available {
+  background-color: green;
 }
 
 .appointment-count {
@@ -417,19 +437,6 @@ form input[type="submit"]:hover {
 
 .calendar-navigation .current-month {
   font-weight: bold;
-}
-
-/* Border styles for appointment availability */
-.calendar-day.green-border {
-  border: 5px solid green;
-  /* Green border for days with room for more appointments */
-  background-color: #89CEEE;
-}
-
-.calendar-day.red-border {
-  border: 5px solid red;
-  /* Red border for fully booked days */
-  background-color: #89CEEE;
 }
 
 .daily-view {

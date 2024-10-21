@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 include_once '../db/laoseis.php';
 
 // Function to generate the calendar (Monthly or Weekly)
+// Function to generate the calendar (Monthly or Weekly)
 function generateCalendar($year, $month, $view, $conn, $selected_date = null)
 {
     if ($view == 'monthly') {
@@ -31,48 +32,38 @@ function generateCalendar($year, $month, $view, $conn, $selected_date = null)
             $current_date = "$year-$month-" . str_pad($day, 2, '0', STR_PAD_LEFT);
 
             // Query to get the number of appointments for the whole day
-            $sql = "SELECT COUNT(*) AS total FROM Kalender WHERE broneeritud_aeg = ?";
+            $sql = "SELECT algus_aeg, lopp_aeg FROM Kalender WHERE broneeritud_aeg = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $current_date);
             $stmt->execute();
             $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
-            $appointment_count = $row['total'];
 
-            // Determine if all slots between 09:00 and 18:00 are filled
-            $time_slots = [];
-            for ($hour = 9; $hour < 18; $hour++) {
-                $time_slots[] = sprintf('%02d:00:00', $hour);
-            }
+            // Create a time map for 09:00 - 18:00 (9 hours, each hour as a slot)
+            $time_slots = array_fill(9, 9, false); // false means available, true means booked
 
-            $all_slots_filled = true;
-            foreach ($time_slots as $slot) {
-                $sql = "SELECT COUNT(*) AS slot_count 
-            FROM Kalender 
-            WHERE broneeritud_aeg = ? 
-            AND algus_aeg <= ? 
-            AND lopp_aeg >= ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("sss", $current_date, $slot, $slot);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $row = $result->fetch_assoc();
-                $slot_count = $row['slot_count'];
-
-                if ($slot_count == 0) {
-                    $all_slots_filled = false;
-                    break; // Exit early if any slot is not filled
+            // Mark booked slots
+            while ($row = $result->fetch_assoc()) {
+                $start_hour = (int)explode(":", $row['algus_aeg'])[0];
+                $end_hour = (int)explode(":", $row['lopp_aeg'])[0];
+                
+                for ($hour = $start_hour; $hour < $end_hour; $hour++) {
+                    if ($hour >= 9 && $hour < 18) {
+                        $time_slots[$hour] = true; // Mark the slot as booked
+                    }
                 }
             }
 
-            // Determine border class based on slots filled
-            $border_class = ($all_slots_filled >= 9) ? 'red-border' : (($appointment_count > 0) ? 'green-border' : '');
-
-            echo '<div class="calendar-day ' . $border_class . '" onclick="openDay(\'' . $current_date . '\')">';
-            echo $day;
-            if ($appointment_count > 0) {
-                echo "<br><span class='appointment-count'>$appointment_count broneeringut</span>";
+            // Generate the visual bar for the booked times
+            $bar_html = '<div class="time-bar">';
+            foreach ($time_slots as $hour => $is_booked) {
+                $bar_html .= '<div class="time-slot ' . ($is_booked ? 'booked' : 'available') . '"></div>';
             }
+            $bar_html .= '</div>';
+
+            // Display the day with the time bar
+            echo '<div class="calendar-day ' . '" onclick="openDay(\'' . $current_date . '\')">';
+            echo $day;
+            echo $bar_html; // Append the time bar below the date
             echo '</div>';
         }
 
@@ -247,33 +238,84 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'monthly';
 
     <!-- Daily view if a date is selected -->
     <?php if ($selected_date): ?>
-        <div class="daily-view">
-            <?php
-            $formatted_date = date("d.m.Y", strtotime($selected_date));
-            ?>
-            <h2>Broneeringud <?php echo $formatted_date; ?> jaoks</h2>
-            <?php
-            $stmt = $conn->prepare("SELECT Kalender.*, Login.kasutajanimi FROM Kalender 
-                         LEFT JOIN Login ON Kalender.user_id = Login.ID 
-                         WHERE broneeritud_aeg = ? ORDER BY algus_aeg");
-            $stmt->bind_param("s", $selected_date);
-            $stmt->execute();
-            $result = $stmt->get_result();
+<div class="daily-view">
+    <?php
+    $formatted_date = date("d.m.Y", strtotime($selected_date));
+    ?>
+    <h2>Broneeringud <?php echo $formatted_date; ?> jaoks</h2>
+    <table class="daily-view-table">
+        <tr>
+            <th>Aeg</th>
+            <th>Broneeringu info</th>
+        </tr>
+        <?php
+        // Define the time range from 09:00 to 18:00
+        $start_time = 9;
+        $end_time = 18;
 
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<p><strong>" . htmlspecialchars($row['kliendi_nimi']) . "</strong> (" . htmlspecialchars($row['reg_nr']) . ") - " . htmlspecialchars($row['algus_aeg']) . " kuni " . htmlspecialchars($row['lopp_aeg']) . "<a href='muuda_aega.php?kalendri_id=" . htmlspecialchars($row['kalendri_id']) . "'>
-                    <i class='fa-solid fa-pen-to-square fa-lg muuda-icon'></i>
-                    </a>" . "<br>" . htmlspecialchars($row['kirjeldus']) . "<br> Lisas kasutaja: " . htmlspecialchars($row['kasutajanimi']) . "</p>";
-                }
-            } else {
-                echo "<p>Broneeringud puuduvad.</p>";
+        // Fetch all appointments for the selected day
+        $stmt = $conn->prepare("SELECT Kalender.*, Login.kasutajanimi FROM Kalender 
+                                 LEFT JOIN Login ON Kalender.user_id = Login.ID 
+                                 WHERE broneeritud_aeg = ? ORDER BY algus_aeg");
+        $stmt->bind_param("s", $selected_date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Store appointments in an array, indexed by time slots
+        $appointments = [];
+        while ($row = $result->fetch_assoc()) {
+            $start_hour = (int)explode(":", $row['algus_aeg'])[0];
+            $end_hour = (int)explode(":", $row['lopp_aeg'])[0];
+            for ($hour = $start_hour; $hour < $end_hour; $hour++) {
+                $appointments[$hour] = $row;
             }
+        }
 
-            $stmt->close();
-            ?>
-        </div>
-    <?php endif; ?>
+        $stmt->close();
+
+        // Loop through each time slot between 09:00 and 18:00
+        $hour = $start_time;
+        while ($hour < $end_time) {
+            // Check if there's an appointment for the current time slot
+            if (isset($appointments[$hour])) {
+                $appointment = $appointments[$hour];
+                $kliendi_nimi = htmlspecialchars($appointment['kliendi_nimi']);
+                $reg_nr = htmlspecialchars($appointment['reg_nr']);
+                $algus_aeg = htmlspecialchars($appointment['algus_aeg']);
+                $lopp_aeg = htmlspecialchars($appointment['lopp_aeg']);
+                $kirjeldus = htmlspecialchars($appointment['kirjeldus']);
+                $kasutajanimi = htmlspecialchars($appointment['kasutajanimi']);
+                $kalendri_id = htmlspecialchars($appointment['kalendri_id']);
+
+                // Calculate the duration of the appointment
+                $start_hour = (int)explode(":", $appointment['algus_aeg'])[0];
+                $end_hour = (int)explode(":", $appointment['lopp_aeg'])[0];
+                $duration = $end_hour - $start_hour;
+
+                // Output the appointment row spanning the duration
+                echo "<tr>";
+                echo "<td>$algus_aeg kuni $lopp_aeg</td>";
+                echo "<td><strong>$kliendi_nimi</strong> ($reg_nr)<br>$kirjeldus<br>Lisas kasutaja: $kasutajanimi</td>";
+                echo "</tr>";
+
+                // Skip the hours covered by this appointment
+                $hour += $duration;
+            } else {
+                // Output an empty row for times without an appointment
+                $current_time = sprintf('%02d:00', $hour);
+                echo "<tr>";
+                echo "<td>$current_time kuni " . sprintf('%02d:00', $hour + 1) . "</td>";
+                echo "<td>Vaba aeg</td>";
+                echo "</tr>";
+
+                // Move to the next hour
+                $hour++;
+            }
+        }
+        ?>
+    </table>
+</div>
+<?php endif; ?>
 
     <footer>
         <p>Rõngu Auto OÜ</p>
