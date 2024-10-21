@@ -48,12 +48,12 @@ class MYPDF extends TCPDF
 }
 
 // Get the RegNr from the GET parameter
-if (isset($_GET['RegNr'])) {
-    $RegNr = $_GET['RegNr'];
+if (isset($_GET['too_id'])) {
+    $too_id = $_GET['too_id'];
 
     // Fetch data from the database based on RegNr
     include_once '../db/laoseis.php';
-    $query = "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood WHERE UPPER(RegNr) = UPPER('$RegNr')";
+    $query = "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood WHERE too_id = '$too_id'";
     $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
@@ -62,7 +62,7 @@ if (isset($_GET['RegNr'])) {
         // Create PDF using TCPDF
         $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetTitle('Tehtud Töö PDF: ' . $RegNr);
+        $pdf->SetTitle('Tehtud Töö PDF: ' . $row['RegNr']);
         $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
@@ -90,9 +90,8 @@ if (isset($_GET['RegNr'])) {
         $pdf->Cell(0, 10, 'Odomeeter: ' . $row['Odomeeter'] . ' km', 0, 1, 'R');
         $pdf->Ln(2);
 
-
         $html = '
-            <table border="1" cellpadding="10">
+                 <table border="1" cellpadding="10">
                 <thead>
                     <tr>
                         <th style="font-size:16px;"><b>Tehtud Töö</b></th>
@@ -109,7 +108,7 @@ if (isset($_GET['RegNr'])) {
         $pdf->writeHTML($html, true, false, true, false, '');
 
         // Output PDF: I = internal, D = download
-        $pdf->Output('Tehtud_too_' . $RegNr . '.pdf', 'I');
+        $pdf->Output('Tehtud_too_' . $row['RegNr'] . '.pdf', 'I');
     } else {
         echo 'Error: Andmeid ei leitud.';
     }
