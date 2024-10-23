@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 include_once '../db/laoseis.php';
 
 // Function to generate the calendar (Monthly or Weekly)
-// Function to generate the calendar (Monthly or Weekly)
 function generateCalendar($year, $month, $view, $conn, $selected_date = null)
 {
     if ($view == 'monthly') {
@@ -26,6 +25,8 @@ function generateCalendar($year, $month, $view, $conn, $selected_date = null)
         for ($i = 1; $i < $first_day_of_month; $i++) {
             echo '<div class="calendar-empty"></div>';
         }
+        // Get the current date
+        $current_date_today = date('Y-m-d');
 
         // Days of the current month
         for ($day = 1; $day <= $days_in_month; $day++) {
@@ -43,9 +44,9 @@ function generateCalendar($year, $month, $view, $conn, $selected_date = null)
 
             // Mark booked slots
             while ($row = $result->fetch_assoc()) {
-                $start_hour = (int)explode(":", $row['algus_aeg'])[0];
-                $end_hour = (int)explode(":", $row['lopp_aeg'])[0];
-                
+                $start_hour = (int) explode(":", $row['algus_aeg'])[0];
+                $end_hour = (int) explode(":", $row['lopp_aeg'])[0];
+
                 for ($hour = $start_hour; $hour < $end_hour; $hour++) {
                     if ($hour >= 9 && $hour < 18) {
                         $time_slots[$hour] = true; // Mark the slot as booked
@@ -60,8 +61,11 @@ function generateCalendar($year, $month, $view, $conn, $selected_date = null)
             }
             $bar_html .= '</div>';
 
+            // Highlight the current day by adding a 'current-day' class
+            $day_class = ($current_date == $current_date_today) ? 'calendar-day current-day' : 'calendar-day';
+
             // Display the day with the time bar
-            echo '<div class="calendar-day ' . '" onclick="openDay(\'' . $current_date . '\')">';
+            echo '<div class="' . $day_class . '" onclick="openDay(\'' . $current_date . '\')">';
             echo $day;
             echo $bar_html; // Append the time bar below the date
             echo '</div>';
@@ -238,84 +242,84 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'monthly';
 
     <!-- Daily view if a date is selected -->
     <?php if ($selected_date): ?>
-<div class="daily-view">
-    <?php
-    $formatted_date = date("d.m.Y", strtotime($selected_date));
-    ?>
-    <h2>Broneeringud <?php echo $formatted_date; ?> jaoks</h2>
-    <table class="daily-view-table">
-        <tr>
-            <th>Aeg</th>
-            <th>Broneeringu info</th>
-        </tr>
-        <?php
-        // Define the time range from 09:00 to 18:00
-        $start_time = 9;
-        $end_time = 18;
+        <div class="daily-view">
+            <?php
+            $formatted_date = date("d.m.Y", strtotime($selected_date));
+            ?>
+            <h2>Broneeringud <?php echo $formatted_date; ?> jaoks</h2>
+            <table class="daily-view-table">
+                <tr>
+                    <th>Aeg</th>
+                    <th>Broneeringu info</th>
+                </tr>
+                <?php
+                // Define the time range from 09:00 to 18:00
+                $start_time = 9;
+                $end_time = 18;
 
-        // Fetch all appointments for the selected day
-        $stmt = $conn->prepare("SELECT Kalender.*, Login.kasutajanimi FROM Kalender 
+                // Fetch all appointments for the selected day
+                $stmt = $conn->prepare("SELECT Kalender.*, Login.kasutajanimi FROM Kalender 
                                  LEFT JOIN Login ON Kalender.user_id = Login.ID 
                                  WHERE broneeritud_aeg = ? ORDER BY algus_aeg");
-        $stmt->bind_param("s", $selected_date);
-        $stmt->execute();
-        $result = $stmt->get_result();
+                $stmt->bind_param("s", $selected_date);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-        // Store appointments in an array, indexed by time slots
-        $appointments = [];
-        while ($row = $result->fetch_assoc()) {
-            $start_hour = (int)explode(":", $row['algus_aeg'])[0];
-            $end_hour = (int)explode(":", $row['lopp_aeg'])[0];
-            for ($hour = $start_hour; $hour < $end_hour; $hour++) {
-                $appointments[$hour] = $row;
-            }
-        }
+                // Store appointments in an array, indexed by time slots
+                $appointments = [];
+                while ($row = $result->fetch_assoc()) {
+                    $start_hour = (int) explode(":", $row['algus_aeg'])[0];
+                    $end_hour = (int) explode(":", $row['lopp_aeg'])[0];
+                    for ($hour = $start_hour; $hour < $end_hour; $hour++) {
+                        $appointments[$hour] = $row;
+                    }
+                }
 
-        $stmt->close();
+                $stmt->close();
 
-        // Loop through each time slot between 09:00 and 18:00
-        $hour = $start_time;
-        while ($hour < $end_time) {
-            // Check if there's an appointment for the current time slot
-            if (isset($appointments[$hour])) {
-                $appointment = $appointments[$hour];
-                $kliendi_nimi = htmlspecialchars($appointment['kliendi_nimi']);
-                $reg_nr = htmlspecialchars($appointment['reg_nr']);
-                $algus_aeg = htmlspecialchars($appointment['algus_aeg']);
-                $lopp_aeg = htmlspecialchars($appointment['lopp_aeg']);
-                $kirjeldus = htmlspecialchars($appointment['kirjeldus']);
-                $kasutajanimi = htmlspecialchars($appointment['kasutajanimi']);
-                $kalendri_id = htmlspecialchars($appointment['kalendri_id']);
+                // Loop through each time slot between 09:00 and 18:00
+                $hour = $start_time;
+                while ($hour < $end_time) {
+                    // Check if there's an appointment for the current time slot
+                    if (isset($appointments[$hour])) {
+                        $appointment = $appointments[$hour];
+                        $kliendi_nimi = htmlspecialchars($appointment['kliendi_nimi']);
+                        $reg_nr = htmlspecialchars($appointment['reg_nr']);
+                        $algus_aeg = htmlspecialchars($appointment['algus_aeg']);
+                        $lopp_aeg = htmlspecialchars($appointment['lopp_aeg']);
+                        $kirjeldus = htmlspecialchars($appointment['kirjeldus']);
+                        $kasutajanimi = htmlspecialchars($appointment['kasutajanimi']);
+                        $kalendri_id = htmlspecialchars($appointment['kalendri_id']);
 
-                // Calculate the duration of the appointment
-                $start_hour = (int)explode(":", $appointment['algus_aeg'])[0];
-                $end_hour = (int)explode(":", $appointment['lopp_aeg'])[0];
-                $duration = $end_hour - $start_hour;
+                        // Calculate the duration of the appointment
+                        $start_hour = (int) explode(":", $appointment['algus_aeg'])[0];
+                        $end_hour = (int) explode(":", $appointment['lopp_aeg'])[0];
+                        $duration = $end_hour - $start_hour;
 
-                // Output the appointment row spanning the duration
-                echo "<tr>";
-                echo "<td>$algus_aeg kuni $lopp_aeg</td>";
-                echo "<td><strong>$kliendi_nimi</strong> ($reg_nr)<br>$kirjeldus<br>Lisas kasutaja: $kasutajanimi</td>";
-                echo "</tr>";
+                        // Output the appointment row spanning the duration
+                        echo "<tr>";
+                        echo "<td>$algus_aeg kuni $lopp_aeg</td>";
+                        echo "<td><strong>$kliendi_nimi</strong> ($reg_nr)<br>$kirjeldus<br>Lisas kasutaja: $kasutajanimi</td>";
+                        echo "</tr>";
 
-                // Skip the hours covered by this appointment
-                $hour += $duration;
-            } else {
-                // Output an empty row for times without an appointment
-                $current_time = sprintf('%02d:00', $hour);
-                echo "<tr>";
-                echo "<td>$current_time kuni " . sprintf('%02d:00', $hour + 1) . "</td>";
-                echo "<td>Vaba aeg</td>";
-                echo "</tr>";
+                        // Skip the hours covered by this appointment
+                        $hour += $duration;
+                    } else {
+                        // Output an empty row for times without an appointment
+                        $current_time = sprintf('%02d:00', $hour);
+                        echo "<tr>";
+                        echo "<td>$current_time kuni " . sprintf('%02d:00', $hour + 1) . "</td>";
+                        echo "<td>Vaba aeg</td>";
+                        echo "</tr>";
 
-                // Move to the next hour
-                $hour++;
-            }
-        }
-        ?>
-    </table>
-</div>
-<?php endif; ?>
+                        // Move to the next hour
+                        $hour++;
+                    }
+                }
+                ?>
+            </table>
+        </div>
+    <?php endif; ?>
 
     <footer>
         <p>Rõngu Auto OÜ</p>
@@ -338,16 +342,16 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'monthly';
         }
     </script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var currentUrl = window.location.href;
+        document.addEventListener('DOMContentLoaded', function () {
+            var currentUrl = window.location.href;
 
-        document.querySelectorAll('.nav-links a').forEach(function (link) {
-            if (link.href === currentUrl) {
-                link.classList.add('active');
-            }
+            document.querySelectorAll('.nav-links a').forEach(function (link) {
+                if (link.href === currentUrl) {
+                    link.classList.add('active');
+                }
+            });
         });
-    });
-</script>
+    </script>
 </body>
 
 </html>

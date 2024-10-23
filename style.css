@@ -400,6 +400,13 @@ form input[type="submit"]:hover {
   cursor: pointer;
 }
 
+.current-day {
+  background-color: #f0e68c;
+  /* Light yellow background */
+  border: 2px solid #ffa500;
+  /* Orange border */
+}
+
 .time-bar {
   display: flex;
   height: 5px;

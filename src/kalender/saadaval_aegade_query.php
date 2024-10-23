@@ -48,6 +48,5 @@ if (isset($_GET['date'])) {
     }
 
     // Return available times as JSON
-    echo json_encode($available_times);
-}
+    echo json_encode($available_times);}
 ?>
