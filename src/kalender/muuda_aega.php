@@ -101,6 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <label for="kliendi_nimi">Kliendi nimi:</label>
         <input type="text" name="kliendi_nimi" value="<?php echo $appointment['kliendi_nimi']; ?>" required><br>
 
+        <label for="reg_nr">Registreerimisnumber:</label>
+        <input type="text" name="reg_nr" value="<?php echo $appointment['reg_nr']; ?>"><br>
+
         <label for="broneeritud_aeg">Broneeritud kuupäev:</label>
         <input type="date" name="broneeritud_aeg" value="<?php echo $appointment['broneeritud_aeg']; ?>" required><br>
 
@@ -112,9 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <label for="kirjeldus">Kirjeldus:</label>
         <textarea name="kirjeldus"><?php echo $appointment['kirjeldus']; ?></textarea><br>
-
-        <label for="reg_nr">Registreerimisnumber:</label>
-        <input type="text" name="reg_nr" value="<?php echo $appointment['reg_nr']; ?>"><br>
 
         <div class="formButton">
             <input type="submit" name="submit" value="Muuda broneeringut" class="button">

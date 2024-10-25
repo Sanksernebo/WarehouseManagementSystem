@@ -17,25 +17,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $reg_nr = $_POST['reg_nr'];
     $user_id = $_SESSION['user_id']; // Capture the logged-in user's ID
 
+    // Validate the time to ensure it's on the hour or half-hour
+    $algus_minute = date('i', strtotime($algus_aeg));
+    $lopp_minute = date('i', strtotime($lopp_aeg));
 
-        // Prepare the SQL statement to avoid SQL injection
-        $stmt = $conn->prepare("INSERT INTO Kalender (kliendi_nimi, broneeritud_aeg, algus_aeg, lopp_aeg, kirjeldus, reg_nr, user_id) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)");
+    if (!in_array($algus_minute, ['00', '30']) || !in_array($lopp_minute, ['00', '30'])) {
+        echo "Algusaeg ja lõppaeg peavad olema täis- või pooltunnil!";
+        exit;
+    }
 
-// Bind parameters
-$stmt->bind_param("ssssssi", $kliendi_nimi, $broneeritud_aeg, $algus_aeg, $lopp_aeg, $kirjeldus, $reg_nr, $user_id);
+    // Prepare the SQL statement to avoid SQL injection
+    $stmt = $conn->prepare("INSERT INTO Kalender (kliendi_nimi, broneeritud_aeg, algus_aeg, lopp_aeg, kirjeldus, reg_nr, user_id) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-// Execute the statement
-if ($stmt->execute()) {
-// Redirect to kalender.php after successful insertion
-header('Location: kalender.php');
-exit; // Ensure script execution stops after redirection
-} else {
-echo "Viga: " . $stmt->error;
-}
+    // Bind parameters
+    $stmt->bind_param("ssssssi", $kliendi_nimi, $broneeritud_aeg, $algus_aeg, $lopp_aeg, $kirjeldus, $reg_nr, $user_id);
 
-// Close the statement
-$stmt->close();
+    // Execute the statement
+    if ($stmt->execute()) {
+        // Redirect to kalender.php after successful insertion
+        header('Location: kalender.php');
+        exit; // Ensure script execution stops after redirection
+    } else {
+        echo "Viga: " . $stmt->error;
+    }
+
+    // Close the statement
+    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
@@ -84,27 +92,29 @@ $stmt->close();
     <!-- Form to create a new appointment -->
     <h1>Loo uus broneering</h1>
     <form method="POST" action="lisa_uus_aeg.php">
-        <label for="kliendi_nimi">Kliendi nimi:</label>
-        <input type="text" id="kliendi_nimi" name="kliendi_nimi" required><br>
+    <label for="kliendi_nimi">Kliendi nimi:</label>
+    <input type="text" id="kliendi_nimi" name="kliendi_nimi" required><br>
 
-        <label for="reg_nr">Registreerimisnumber:</label>
-        <input type="text" id="reg_nr" name="reg_nr"><br>
+    <label for="reg_nr">Registreerimisnumber:</label>
+    <input type="text" id="reg_nr" name="reg_nr"><br>
 
-        <label for="broneeritud_aeg">Broneeritud kuupäev:</label>
-        <input type="date" id="broneeritud_aeg" name="broneeritud_aeg" required><br>
+    <label for="broneeritud_aeg">Broneeritud kuupäev:</label>
+    <input type="date" id="broneeritud_aeg" name="broneeritud_aeg" required onchange="fetchAvailableTimes()"><br>
 
-        <label for="algus_aeg">Algusaeg:</label>
-        <input type="time" id="algus_aeg" name="algus_aeg" required><br>
+    <label for="algus_aeg">Algusaeg:</label>
+    <select id="algus_aeg" name="algus_aeg" required></select><br>
 
-        <label for="lopp_aeg">Lõppaeg:</label>
-        <input type="time" id="lopp_aeg" name="lopp_aeg" required><br>
+    <label for="lopp_aeg">Lõppaeg:</label>
+    <select id="lopp_aeg" name="lopp_aeg" required></select><br>
 
-        <label for="kirjeldus">Kirjeldus:</label>
-        <textarea id="kirjeldus" name="kirjeldus"></textarea><br>
-        <div class="formButton">
-            <input type="submit" name="submit" value="Loo Broneering"></input>
-        </div>
-    </form>
+    <label for="kirjeldus">Kirjeldus:</label>
+    <textarea id="kirjeldus" name="kirjeldus"></textarea><br>
+    
+    <div class="formButton">
+        <input type="submit" name="submit" value="Loo Broneering"></input>
+    </div>
+</form>
+
 
 </body>
 <footer>
@@ -113,5 +123,43 @@ $stmt->close();
         <script>document.write(new Date().getFullYear())</script>
     </p>
 </footer>
+<script>
+function fetchAvailableTimes() {
+    var selectedDate = document.getElementById("broneeritud_aeg").value;
+
+    if (selectedDate) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "saadaval_aegade_query.php?date=" + selectedDate, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var times = JSON.parse(xhr.responseText);
+                populateTimeSelects(times);
+            }
+        };
+        xhr.send();
+    }
+}
+
+function populateTimeSelects(times) {
+    var algusAegSelect = document.getElementById("algus_aeg");
+    var loppAegSelect = document.getElementById("lopp_aeg");
+
+    // Clear current options
+    algusAegSelect.innerHTML = '';
+    loppAegSelect.innerHTML = '';
+
+    // Populate new options
+    times.forEach(function(time) {
+        var option = document.createElement("option");
+        option.value = time;
+        option.text = time;
+        algusAegSelect.appendChild(option);
+
+        // Clone option for end time selection
+        var optionEnd = option.cloneNode(true);
+        loppAegSelect.appendChild(optionEnd);
+    });
+}
+</script>
 
 </html>
