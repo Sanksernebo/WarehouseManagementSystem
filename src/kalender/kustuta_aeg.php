@@ -37,7 +37,6 @@ if (isset($_POST['confirm_delete'])) {
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
-        echo "<p>Edukalt kustutatud!</p>";
         header("Location: kalender.php");
         exit();
     } else {
