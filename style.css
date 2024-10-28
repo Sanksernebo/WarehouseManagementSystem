@@ -419,11 +419,11 @@ form input[type="submit"]:hover {
 }
 
 .booked {
-  background-color: red;
+  background-color: rgb(187, 33, 36);
 }
 
 .available {
-  background-color: green;
+  background-color: rgb(34, 187, 51);
 }
 
 .appointment-count {
