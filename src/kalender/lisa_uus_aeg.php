@@ -17,15 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $reg_nr = $_POST['reg_nr'];
     $user_id = $_SESSION['user_id']; // Capture the logged-in user's ID
 
-    // Validate the time to ensure it's on the hour or half-hour
-    $algus_minute = date('i', strtotime($algus_aeg));
-    $lopp_minute = date('i', strtotime($lopp_aeg));
-
-    if (!in_array($algus_minute, ['00', '30']) || !in_array($lopp_minute, ['00', '30'])) {
-        echo "Algusaeg ja lõppaeg peavad olema täis- või pooltunnil!";
-        exit;
-    }
-
     // Prepare the SQL statement to avoid SQL injection
     $stmt = $conn->prepare("INSERT INTO Kalender (kliendi_nimi, broneeritud_aeg, algus_aeg, lopp_aeg, kirjeldus, reg_nr, user_id) 
     VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -99,13 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <input type="text" id="reg_nr" name="reg_nr"><br>
 
     <label for="broneeritud_aeg">Broneeritud kuupäev:</label>
-    <input type="date" id="broneeritud_aeg" name="broneeritud_aeg" required onchange="fetchAvailableTimes()"><br>
+    <input type="date" id="broneeritud_aeg" name="broneeritud_aeg" required><br>
 
     <label for="algus_aeg">Algusaeg:</label>
-    <select id="algus_aeg" name="algus_aeg" required></select><br>
+    <input type="time" step="3600" min="09:00" max="18:00" id="algus_aeg" name="algus_aeg" required></input><br>
 
     <label for="lopp_aeg">Lõppaeg:</label>
-    <select id="lopp_aeg" name="lopp_aeg" required></select><br>
+    <input type="time" step="3600" id="lopp_aeg" min="09:00" max="18:00" name="lopp_aeg" required></i><br>
 
     <label for="kirjeldus">Kirjeldus:</label>
     <textarea id="kirjeldus" name="kirjeldus"></textarea><br>
@@ -123,43 +114,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <script>document.write(new Date().getFullYear())</script>
     </p>
 </footer>
+
 <script>
-function fetchAvailableTimes() {
-    var selectedDate = document.getElementById("broneeritud_aeg").value;
+    const timeInput = document.getElementById('algus_aeg', 'lopp_aeg');
 
-    if (selectedDate) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "saadaval_aegade_query.php?date=" + selectedDate, true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var times = JSON.parse(xhr.responseText);
-                populateTimeSelects(times);
-            }
-        };
-        xhr.send();
-    }
-}
+    timeInput.addEventListener('input', (e) => {
+    let hour = e.target.value.split(':')[0]
+    e.target.value = `${hour}:00`
+    })
 
-function populateTimeSelects(times) {
-    var algusAegSelect = document.getElementById("algus_aeg");
-    var loppAegSelect = document.getElementById("lopp_aeg");
-
-    // Clear current options
-    algusAegSelect.innerHTML = '';
-    loppAegSelect.innerHTML = '';
-
-    // Populate new options
-    times.forEach(function(time) {
-        var option = document.createElement("option");
-        option.value = time;
-        option.text = time;
-        algusAegSelect.appendChild(option);
-
-        // Clone option for end time selection
-        var optionEnd = option.cloneNode(true);
-        loppAegSelect.appendChild(optionEnd);
-    });
-}
 </script>
 
 </html>
