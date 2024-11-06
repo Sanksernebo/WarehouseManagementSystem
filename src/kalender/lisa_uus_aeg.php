@@ -17,12 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $reg_nr = $_POST['reg_nr'];
     $user_id = $_SESSION['user_id']; // Capture the logged-in user's ID
 
-    // Validate the time to ensure it's on the hour or half-hour
+    // Validate the time to ensure it's on the hour
     $algus_minute = date('i', strtotime($algus_aeg));
     $lopp_minute = date('i', strtotime($lopp_aeg));
 
-    if (!in_array($algus_minute, ['00', '30']) || !in_array($lopp_minute, ['00', '30'])) {
-        echo "Algusaeg ja lõppaeg peavad olema täis- või pooltunnil!";
+    if (!in_array($algus_minute, ['00']) || !in_array($lopp_minute, ['00'])) {
+        echo "Algusaeg ja lõppaeg peavad olema täistunnil!";
         exit;
     }
 

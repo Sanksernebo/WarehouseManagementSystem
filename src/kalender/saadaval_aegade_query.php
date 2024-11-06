@@ -21,31 +21,31 @@ if (isset($_GET['date'])) {
 
     $stmt->close();
 
-    // Generate available times (from 09:00 to 18:00)
-    $available_times = [];
-    $start_time = strtotime("09:00");
-    $end_time = strtotime("18:00");
+// Generate available times (from 09:00 to 18:00)
+$available_times = [];
+$start_time = strtotime("09:00");
+$end_time = strtotime("18:00");
 
-    while ($start_time <= $end_time) {
-        $time_slot = date("H:i", $start_time);
+while ($start_time < $end_time) { // Ensure loop ends before 18:00
+    $time_slot = date("H:i", $start_time);
 
-        // Check if the time slot is booked
-        $is_booked = false;
-        foreach ($booked_times as $booking) {
-            if ($time_slot >= $booking['start'] && $time_slot < $booking['end']) {
-                $is_booked = true;
-                break;
-            }
+    // Check if the time slot is booked
+    $is_booked = false;
+    foreach ($booked_times as $booking) {
+        if ($time_slot >= $booking['start'] && $time_slot < $booking['end']) {
+            $is_booked = true;
+            break;
         }
-
-        // If the time slot is not booked, add it to available times
-        if (!$is_booked) {
-            $available_times[] = $time_slot;
-        }
-
-        // Increment by 30 minutes
-        $start_time = strtotime("+30 minutes", $start_time);
     }
+
+    // If the time slot is not booked, add it to available times
+    if (!$is_booked) {
+        $available_times[] = $time_slot;
+    }
+
+    // Increment by 1 hour
+    $start_time = strtotime("+1 hour", $start_time);
+}
 
     // Return available times as JSON
     echo json_encode($available_times);}
