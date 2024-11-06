@@ -1,11 +1,11 @@
 @font-face {
   font-family: Lato;
-  src: url(/WMS_Test/src/fonts/Lato/Lato-Regular.ttf);
+  src: url(/src/fonts/Lato/Lato-Regular.ttf);
 }
 
 @font-face {
   font-family: LatoBold;
-  src: url(WMS_Test/src/fonts/Lato/Lato-Bold.ttf);
+  src: url(/src/fonts/Lato/Lato-Bold.ttf);
 }
 
 /* apply to all devices */
@@ -395,6 +395,7 @@ form input[type="submit"]:hover {
 .calendar-empty {
   position: relative;
   padding: 10px;
+  border-radius: 8px;
   background-color: #89CEEE;
   font-weight: bold;
   cursor: pointer;
