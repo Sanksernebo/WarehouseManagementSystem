@@ -108,10 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="date" name="broneeritud_aeg" value="<?php echo $appointment['broneeritud_aeg']; ?>" required><br>
 
         <label for="algus_aeg">Algusaeg:</label>
-        <input type="time" name="algus_aeg" value="<?php echo $appointment['algus_aeg']; ?>" required><br>
+        <input type="time" name="algus_aeg" step="3600" min="09:00" max="18:00" value="<?php echo $appointment['algus_aeg']; ?>" required><br>
 
         <label for="lopp_aeg">Lõppaeg:</label>
-        <input type="time" name="lopp_aeg" value="<?php echo $appointment['lopp_aeg']; ?>" required><br>
+        <input type="time" name="lopp_aeg" step="3600" min="09:00" max="18:00" value="<?php echo $appointment['lopp_aeg']; ?>" required><br>
 
         <label for="kirjeldus">Kirjeldus:</label>
         <textarea name="kirjeldus"><?php echo $appointment['kirjeldus']; ?></textarea><br>
@@ -128,5 +128,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <script>document.write(new Date().getFullYear())</script>
     </p>
 </footer>
+
+<script>
+    const startTimeInput = document.getElementById('algus_aeg');
+    const endTimeInput = document.getElementById('lopp_aeg');
+
+    startTimeInput.addEventListener('input', (e) => {
+        let hour = e.target.value.split(':')[0];
+        e.target.value = `${hour}:00`;
+    });
+
+    endTimeInput.addEventListener('input', (e) => {
+        let hour = e.target.value.split(':')[0];
+        e.target.value = `${hour}:00`;
+    });
+
+</script>
 
 </html>

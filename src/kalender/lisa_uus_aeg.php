@@ -116,12 +116,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </footer>
 
 <script>
-    const timeInput = document.getElementById('algus_aeg', 'lopp_aeg');
+    const startTimeInput = document.getElementById('algus_aeg');
+    const endTimeInput = document.getElementById('lopp_aeg');
 
-    timeInput.addEventListener('input', (e) => {
-    let hour = e.target.value.split(':')[0]
-    e.target.value = `${hour}:00`
-    })
+    startTimeInput.addEventListener('input', (e) => {
+        let hour = e.target.value.split(':')[0];
+        e.target.value = `${hour}:00`;
+    });
+
+    endTimeInput.addEventListener('input', (e) => {
+        let hour = e.target.value.split(':')[0];
+        e.target.value = `${hour}:00`;
+    });
 
 </script>
 
