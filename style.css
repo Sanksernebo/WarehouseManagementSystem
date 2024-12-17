@@ -417,6 +417,8 @@ form input[type="submit"]:hover {
 .time-slot {
   flex: 1;
   height: 100%;
+  outline-style: solid;
+  outline-width: thin;
 }
 
 .booked {
