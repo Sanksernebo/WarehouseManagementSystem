@@ -96,9 +96,7 @@ if (isset($_GET['ID'])) {
         </div>
         <div style="padding-bottom:5px;">
 
-            ID: <br>
-            <input type="hidden" name="ID" class="txtField" value="<?php echo $row['toote_id']; ?>">
-            <input type="text" name="ID" value="<?php echo $row['toote_id']; ?>" readonly>
+            <input type="hidden" name="toote_id" class="txtField" value="<?php echo $row['toote_id']; ?>">
             <br>
             Tootekood: <br>
             <input type="text" name="Tootekood" class="txtField" value="<?php echo $row['Tootekood']; ?>">
@@ -128,6 +126,8 @@ if (isset($_GET['ID'])) {
                 <option value="Balti Autoosad" <?php if ($row['Ost'] == 'Balti Autoosad')
                     echo 'selected'; ?>>Balti
                     Autoosad</option>
+                <option value="Erimell" <?php if ($row['Ost'] == 'Erimell')
+                    echo 'selected'; ?>>Erimell</option>
             </select>
             <br>
             <lable for="olek" name="Olek">Olek</lable>
@@ -141,7 +141,7 @@ if (isset($_GET['ID'])) {
             </select>
             <br>
             <div class="formButton">
-                <input type="submit" name="submit" value="Uuenda" class="buttom">
+                <input type="submit" name="submit" value="Uuenda" class="button">
             </div>
         </div>
     </form>

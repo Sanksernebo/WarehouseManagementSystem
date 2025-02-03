@@ -70,6 +70,7 @@ if (!isset($_SESSION['user_id'])) {
 			<option value="InterCars">Inter Cars</option>
 			<option value="AD Baltic">AD Baltic</option>
 			<option value="Balti Autoosad">Balti Autoosad</option>
+			<option value="Erimell">Erimell</option>
 		</select>
 		<br>
 		<label for="Olek" name="Olek">Olek</label>
