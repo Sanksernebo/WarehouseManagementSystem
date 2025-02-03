@@ -147,7 +147,7 @@ $view = 'monthly';
             <table class="daily-view-table">
                 <tr>
                     <th>Aeg</th>
-                    <th>Broneeringu info</th>
+                    <th>Broneeringu infoTESTTEST</th>
                 </tr>
                 <?php
                 $start_time = 9;
