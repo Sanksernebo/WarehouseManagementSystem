@@ -19,10 +19,14 @@ if (count($_POST) > 0) {
     mysqli_stmt_execute($stmt);
 
     // Check if the statement was successful
-    if (mysqli_stmt_affected_rows($stmt) > 0) {
-        $message = "Edukalt uuendatud!";
+    if (!mysqli_stmt_execute($stmt)) {
+        $message = "Viga: " . mysqli_stmt_error($stmt);
     } else {
-        $message = "Uuendamine ebaõnnestus: " . mysqli_stmt_error($stmt);
+        if (mysqli_stmt_affected_rows($stmt) > 0) {
+            $message = "Edukalt uuendatud!";
+        } else {
+            $message = "Uuendamine ebaõnnestus või andmed jäid samaks.";
+        }
     }
 
     // Close the statement

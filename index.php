@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: src/login/login.php");
     exit;
 }
-global $conn;
 include_once 'src/db/laoseis.php';
 $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
 ?>
