@@ -1,13 +1,11 @@
 <?php
 session_start();
-// Check if the user is not logged in
 if (!isset($_SESSION['user_id'])) {
-    // Redirect to the login page
     header("Location: ../login/login.php");
     exit;
 }
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Kogus, UPPER(Moot) AS Moot,Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Kogus, UPPER(Moot) AS Moot, Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -18,38 +16,12 @@ $result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev
     <link rel="stylesheet" href="../../style.css">
     <link rel="icon" type="image/x-icon" href="../img/cartehniklogo_svg.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>Laoseis</title>
+    <title>Müüdud Rehvid</title>
 </head>
 
 <body>
-    <nav>
-        <div class="logo">
-            <a href="../../index.php">
-                <img src="../../src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="../../index.php">Avaleht</a>
-            <a href="../../src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-            <a href="../../src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-            <div class="dropdown">
-                <button class="dropbtn">Rehvid
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="../../src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                    <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
-                </div>
-            </div>
-            <a href="../../src/kalender/kalender.php">Töögraafik</a>
-            <a href="../login/logout.php">
-                <?php if (isset($_SESSION['username'])): ?>
-                    <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
-                <?php endif; ?>
-                Logi välja
-            </a>
-        </div>
-    </nav>
+<?php require_once '../includes/nav.php'; ?>
+
     <h1>Müüdud Rehvid</h1>
     <a href="lisa_rehv_myyk.php" class="lisa-link">Lisa Müük</a>
     <input type="text" id="searchBar" onkeyup="search()" placeholder="Otsi Reg.Nr">
@@ -66,31 +38,21 @@ $result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev
             </tr>
         </thead>
         <tbody>
-            <?php
-            $i = 0;
-            while ($row = mysqli_fetch_array($result)) {
-                ?>
+            <?php while ($row = mysqli_fetch_array($result)): ?>
                 <tr>
-                    <td> <?php echo $row["RegNr"]; ?></td>
-                    <td><?php echo $row["Moot"]; ?></td>
-                    <td><?php echo $row["Tootja"]; ?></td>
-                    <td><?php echo $row["Kogus"]; ?> tk</td>
-                    <td><?php echo $row["Hooaeg"]; ?></td>
-                    <td><?php echo $row["Tarnija"]; ?></td>
-                    <td><?php echo $row["FormattedDate"]; ?></td>
+                    <td><?php echo htmlspecialchars($row["RegNr"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Moot"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Tootja"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Kogus"]); ?> tk</td>
+                    <td><?php echo htmlspecialchars($row["Hooaeg"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Tarnija"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["FormattedDate"]); ?></td>
                 </tr>
-                <?php
-                $i++;
-            }
-            ?>
+            <?php endwhile; ?>
         </tbody>
     </table>
-    <footer>
-        <p>Rõngu Auto OÜ</p>
-        <p>Copyright &copy;
-            <script>document.write(new Date().getFullYear())</script>
-        </p>
-    </footer>
+
+<?php require_once '../includes/footer.php'; ?>
 </body>
 <script>
     function search() {
@@ -105,24 +67,22 @@ $result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev
             if (td) {
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = ""; // Show the row
+                    tr[i].style.display = "";
                 } else {
-                    tr[i].style.display = "none"; // Hide the row
+                    tr[i].style.display = "none";
                 }
             }
         }
 
-        // Ensure the thead remains visible even after filtering
         var headerRow = table.querySelector("thead tr");
         if (headerRow) {
-            headerRow.style.display = ""; // Show the header row
+            headerRow.style.display = "";
         }
     }
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var currentUrl = window.location.href;
-
         document.querySelectorAll('.nav-links a').forEach(function (link) {
             if (link.href === currentUrl && !link.closest('.dropdown-content')) {
                 link.classList.add('active');

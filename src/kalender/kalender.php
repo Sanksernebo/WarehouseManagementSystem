@@ -63,8 +63,8 @@ function generateCalendar($year, $month, $view, $conn, $selected_date = null)
     }
 }
 
-$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
-$month = isset($_GET['month']) ? $_GET['month'] : date('m');
+$year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
+$month = isset($_GET['month']) ? (int)$_GET['month'] : (int)date('m');
 $selected_date = isset($_GET['date']) ? $_GET['date'] : null;
 $view = 'monthly';
 ?>
@@ -79,7 +79,7 @@ $view = 'monthly';
     <script src="https://kit.fontawesome.com/4d1395116e.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" type="image/x-icon" href="../img/cartehniklogo_svg.svg">
-    <title>Laoseis</title>
+    <title>Töögraafik</title>
     <script>
         function openDay(date) {
             window.location.href = 'kalender.php?date=' + date;
@@ -88,32 +88,7 @@ $view = 'monthly';
 </head>
 
 <body>
-    <nav>
-        <div class="logo">
-            <a href="../../index.php">
-                <img src="../../src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="../../index.php">Avaleht</a>
-            <a href="../../src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-            <a href="../../src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-            <div class="dropdown">
-                <button class="dropbtn">Rehvid <i class="fa fa-caret-down"></i></button>
-                <div class="dropdown-content">
-                    <a href="../../src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                    <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
-                </div>
-            </div>
-            <a href="../../src/kalender/kalender.php">Töögraafik</a>
-            <a href="../login/logout.php">
-                <?php if (isset($_SESSION['username'])): ?>
-                    <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
-                <?php endif; ?>
-                Logi välja
-            </a>
-        </div>
-    </nav>
+<?php require_once '../includes/nav.php'; ?>
 
     <h1>Töögraafik</h1>
 
@@ -122,17 +97,17 @@ $view = 'monthly';
     <?php
     $month_names = ['Jaanuar', 'Veebruar', 'Märts', 'Aprill', 'Mai', 'Juuni', 'Juuli', 'August', 'September', 'Oktoober', 'November', 'Detsember'];
     $current_month_name = $month_names[$month - 1];
+    $prev_month = $month == 1 ? 12 : $month - 1;
+    $prev_year  = $month == 1 ? $year - 1 : $year;
+    $next_month = $month == 12 ? 1 : $month + 1;
+    $next_year  = $month == 12 ? $year + 1 : $year;
     ?>
 
     <div class="calendar-navigation">
         <div class="current-month"><?php echo $current_month_name . ' ' . $year; ?></div>
         <div class="navigation-buttons">
-            <a
-                href="kalender.php?year=<?php echo $year; ?>&month=<?php echo ($month == 1) ? 12 : $month - 1; ?>&year=<?php echo ($month == 1) ? $year - 1 : $year; ?>">Eelmine
-                Kuu</a>
-            <a
-                href="kalender.php?year=<?php echo $year; ?>&month=<?php echo ($month == 12) ? 1 : $month + 1; ?>&year=<?php echo ($month == 12) ? $year + 1 : $year; ?>">Järgmine
-                Kuu</a>
+            <a href="kalender.php?year=<?php echo $prev_year; ?>&month=<?php echo $prev_month; ?>">Eelmine Kuu</a>
+            <a href="kalender.php?year=<?php echo $next_year; ?>&month=<?php echo $next_month; ?>">Järgmine Kuu</a>
         </div>
     </div>
 
@@ -174,30 +149,32 @@ $view = 'monthly';
                     if (isset($appointments[$hour])) {
                         $appointment = $appointments[$hour];
                         $kliendi_nimi = htmlspecialchars($appointment['kliendi_nimi']);
-                        $reg_nr = htmlspecialchars($appointment['reg_nr']);
-                        $algus_aeg = htmlspecialchars($appointment['algus_aeg']);
-                        $lopp_aeg = htmlspecialchars($appointment['lopp_aeg']);
-                        $kirjeldus = htmlspecialchars($appointment['kirjeldus']);
+                        $reg_nr       = htmlspecialchars($appointment['reg_nr']);
+                        $algus_aeg    = htmlspecialchars($appointment['algus_aeg']);
+                        $lopp_aeg     = htmlspecialchars($appointment['lopp_aeg']);
+                        $kirjeldus    = htmlspecialchars($appointment['kirjeldus']);
                         $kasutajanimi = htmlspecialchars($appointment['kasutajanimi']);
-                        $kalendri_id = htmlspecialchars($appointment['kalendri_id']);
+                        $kalendri_id  = urlencode($appointment['kalendri_id']);
 
                         $start_hour = (int) explode(":", $appointment['algus_aeg'])[0];
-                        $end_hour = (int) explode(":", $appointment['lopp_aeg'])[0];
-                        $duration = $end_hour - $start_hour;
+                        $end_hour   = (int) explode(":", $appointment['lopp_aeg'])[0];
+                        $duration   = $end_hour - $start_hour;
 
                         echo "<tr>";
                         echo "<td>$algus_aeg kuni $lopp_aeg</td>";
-                        echo "<td><strong>$kliendi_nimi</strong> ($reg_nr)<br>$kirjeldus<br>Lisanud: $kasutajanimi<br><a href=\"muuda_aega.php?kalendri_id=$kalendri_id\"> <i class='fa-solid fa-pen-to-square fa-lg muuda-icon'></i></a> | <a href=\"kustuta_aeg.php?kalendri_id=$kalendri_id\" \"><i class='fa-solid fa-trash fa-lg kustuta-icon'></i></a></td>";
+                        echo "<td><strong>$kliendi_nimi</strong> ($reg_nr)<br>$kirjeldus<br>Lisanud: $kasutajanimi<br>"
+                           . "<a href=\"muuda_aega.php?kalendri_id=$kalendri_id\"><i class='fa-solid fa-pen-to-square fa-lg muuda-icon'></i></a>"
+                           . " | "
+                           . "<a href=\"kustuta_aeg.php?kalendri_id=$kalendri_id\"><i class='fa-solid fa-trash fa-lg kustuta-icon'></i></a>"
+                           . "</td>";
                         echo "</tr>";
                         $hour += $duration;
                     } else {
-                        // Output an empty row for times without an appointment
                         $current_time = sprintf('%02d:00', $hour);
                         echo "<tr>";
                         echo "<td>$current_time kuni " . sprintf('%02d:00', $hour + 1) . "</td>";
                         echo "<td>Vaba aeg</td>";
                         echo "</tr>";
-                        // Move to the next hour
                         $hour++;
                     }
                 }
@@ -206,12 +183,7 @@ $view = 'monthly';
         </div>
     <?php endif; ?>
 
-    <footer>
-        <p>Rõngu Auto OÜ</p>
-        <p>&copy;
-            <script>document.write(new Date().getFullYear())</script>
-        </p>
-    </footer>
+<?php require_once '../includes/footer.php'; ?>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
