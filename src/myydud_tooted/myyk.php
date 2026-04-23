@@ -1,8 +1,6 @@
 <?php
 session_start();
-// Check if the user is not logged in
 if (!isset($_SESSION['user_id'])) {
-    // Redirect to the login page
     header("Location: ../login/login.php");
     exit;
 }
@@ -21,101 +19,45 @@ $result = mysqli_query($conn, "SELECT Tootekood, Nimetus, Kogus, DATE_FORMAT(Kuu
 </head>
 
 <body>
-    <nav>
-        <div class="logo">
-            <a href="../../index.php">
-                <img src="../../src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="../../index.php">Avaleht</a>
-            <a href="../../src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-            <a href="../../src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-            <div class="dropdown">
-                <button class="dropbtn">Rehvid
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="../../src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                    <a href="../../src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
-                </div>
-            </div>
-            <a href="../../src/kalender/kalender.php">Töögraafik</a>
-            <a href="../login/logout.php">
-                <?php if (isset($_SESSION['username'])): ?>
-                    <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
-                <?php endif; ?>
-                Logi välja
-            </a>
-        </div>
-    </nav>
-    <?php
-    if (mysqli_num_rows($result) > 0) {
-        ?>
-        <h1>Müüdud Tooted</h1>
-        <table>
-            <thead>
-                <tr>
-                    <td>Tootekood</td>
-                    <td>Nimetus</td>
-                    <td>Kogus</td>
-                    <td>Kuupäev</td>
-                    <td>Sisseostu Hind</td>
-                    <td>Hind</td>
-                    <td>Summa</td>
+<?php require_once '../includes/nav.php'; ?>
 
+    <h1>Müüdud Tooted</h1>
+    <?php if (mysqli_num_rows($result) > 0): ?>
+    <table>
+        <thead>
+            <tr>
+                <td>Tootekood</td>
+                <td>Nimetus</td>
+                <td>Kogus</td>
+                <td>Kuupäev</td>
+                <td>Sisseostu Hind</td>
+                <td>Hind</td>
+                <td>Summa</td>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = mysqli_fetch_array($result)): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row["Tootekood"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Nimetus"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Kogus"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["FormattedDate"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Sisseost"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Hind"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["Summa"]); ?></td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php
-                $i = 0;
-                while ($row = mysqli_fetch_array($result)) {
-                    ?>
-                    <tr>
-                        <td><?php echo $row["Tootekood"]; ?></td>
-                        <td><?php echo $row["Nimetus"]; ?></td>
-                        <td><?php echo $row["Kogus"]; ?></td>
-                        <td><?php echo $row["FormattedDate"]; ?></td>
-                        <td><?php echo $row["Sisseost"]; ?></td>
-                        <td><?php echo $row["Hind"]; ?></td>
-                        <td><?php echo $row["Summa"]; ?></td>
-                    </tr>
-                    <?php
-                    $i++;
-                }
-                ?>
-            </tbody>
-            <?php
-    } else {
-        echo "<p style=font-weight:bold>Tulemusi ei leitud </p>";
-        echo "
-    <nav>
-        <a href=index.php>Avaleht</a>
-        <a href=src/myydud_tooted/myyk.php>Müüdud Tooted</a>
-        <a href=src/tehtud_tood/tehtud_tood.php>Tehtud Tööd</a>
-        <div class=dropdown>
-            <button class=dropbtn>Rehvid
-                <i class=fa fa-caret-down></i>
-            </button>
-            <div class=dropdown-content>
-                <a href=src/rehv_myyk/rehv_myyk.php>Müüdud Rehvid</a>
-                <a href=src/rehv_ladu/rehv_ladu.php>Rehvid Laos</a>
-            </div>
-        </div>
-    </nav>";
-    }
-    ?>
-        <footer>
-            <p>Rõngu Auto OÜ</p>
-            <p>Copyright &copy;
-                <script>document.write(new Date().getFullYear())</script>
-            </p>
-        </footer>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+    <?php else: ?>
+        <p style="font-weight:bold">Tulemusi ei leitud</p>
+    <?php endif; ?>
+
+<?php require_once '../includes/footer.php'; ?>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var currentUrl = window.location.href;
-
         document.querySelectorAll('.nav-links a').forEach(function (link) {
             if (link.href === currentUrl) {
                 link.classList.add('active');

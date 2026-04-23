@@ -51,10 +51,12 @@ class MYPDF extends TCPDF
 if (isset($_GET['too_id'])) {
     $too_id = $_GET['too_id'];
 
-    // Fetch data from the database based on RegNr
+    // Fetch data from the database based on too_id
     include_once '../db/laoseis.php';
-    $query = "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood WHERE too_id = '$too_id'";
-    $result = mysqli_query($conn, $query);
+    $stmt = mysqli_prepare($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS Kuupaev, Odomeeter, Tehtud_tood FROM Tehtud_tood WHERE too_id = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $too_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
