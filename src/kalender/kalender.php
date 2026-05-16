@@ -6,67 +6,71 @@ if (!isset($_SESSION['user_id'])) {
 }
 include_once '../db/laoseis.php';
 
-function generateCalendar($year, $month, $view, $conn, $selected_date = null)
+function generateCalendar($year, $month, $conn, $selected_date = null)
 {
-    if ($view == 'monthly') {
-        $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-        $first_day_of_month = date('N', strtotime("$year-$month-01"));
+    $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    $first_day_of_month = date('N', strtotime("$year-$month-01"));
 
-        echo '<div class="calendar-month">';
-        $day_names = ['E', 'T', 'K', 'N', 'R', 'L', 'P'];
-        foreach ($day_names as $day_name) {
-            echo '<div class="calendar-header">' . $day_name . '</div>';
-        }
+    echo '<div class="calendar-month">';
+    $day_names = ['E', 'T', 'K', 'N', 'R', 'L', 'P'];
+    foreach ($day_names as $day_name) {
+        echo '<div class="calendar-header">' . $day_name . '</div>';
+    }
 
-        for ($i = 1; $i < $first_day_of_month; $i++) {
-            echo '<div class="calendar-empty"></div>';
-        }
+    for ($i = 1; $i < $first_day_of_month; $i++) {
+        echo '<div class="calendar-empty"></div>';
+    }
 
-        $current_date_today = date('Y-m-d');
+    $current_date_today = date('Y-m-d');
 
-        for ($day = 1; $day <= $days_in_month; $day++) {
-            $current_date = "$year-$month-" . str_pad($day, 2, '0', STR_PAD_LEFT);
+    for ($day = 1; $day <= $days_in_month; $day++) {
+        $current_date = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
 
-            $sql = "SELECT algus_aeg, lopp_aeg FROM Kalender WHERE broneeritud_aeg = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $current_date);
-            $stmt->execute();
-            $result = $stmt->get_result();
+        $stmt = $conn->prepare("SELECT algus_aeg, lopp_aeg FROM Kalender WHERE broneeritud_aeg = ?");
+        $stmt->bind_param("s", $current_date);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-            $time_slots = array_fill(9, 9, false);
+        $time_slots = array_fill(9, 9, false);
 
-            while ($row = $result->fetch_assoc()) {
-                $start_hour = (int) explode(":", $row['algus_aeg'])[0];
-                $end_hour = (int) explode(":", $row['lopp_aeg'])[0];
+        while ($row = $result->fetch_assoc()) {
+            $start_hour = (int) explode(":", $row['algus_aeg'])[0];
+            $end_hour   = (int) explode(":", $row['lopp_aeg'])[0];
 
-                for ($hour = $start_hour; $hour < $end_hour; $hour++) {
-                    if ($hour >= 9 && $hour < 18) {
-                        $time_slots[$hour] = true;
-                    }
+            for ($hour = $start_hour; $hour < $end_hour; $hour++) {
+                if ($hour >= 9 && $hour < 18) {
+                    $time_slots[$hour] = true;
                 }
             }
-
-            $bar_html = '<div class="time-bar">';
-            foreach ($time_slots as $hour => $is_booked) {
-                $bar_html .= '<div class="time-slot ' . ($is_booked ? 'booked' : 'available') . '"></div>';
-            }
-            $bar_html .= '</div>';
-
-            $day_class = ($current_date == $current_date_today) ? 'calendar-day current-day' : 'calendar-day';
-            echo '<div class="' . $day_class . '" onclick="openDay(\'' . $current_date . '\')">';
-            echo $day;
-            echo $bar_html;
-            echo '</div>';
         }
 
+        $bar_html = '<div class="time-bar">';
+        foreach ($time_slots as $is_booked) {
+            $bar_html .= '<div class="time-slot ' . ($is_booked ? 'booked' : 'available') . '"></div>';
+        }
+        $bar_html .= '</div>';
+
+        $day_class = 'calendar-day';
+        if ($current_date == $current_date_today) {
+            $day_class .= ' current-day';
+        }
+        if ($selected_date && $current_date == $selected_date) {
+            $day_class .= ' selected-day';
+        }
+        echo '<div class="' . $day_class . '" onclick="openDay(\'' . $current_date . '\')">';
+        echo $day;
+        echo $bar_html;
         echo '</div>';
     }
+
+    echo '</div>';
 }
 
 $year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
 $month = isset($_GET['month']) ? (int)$_GET['month'] : (int)date('m');
-$selected_date = isset($_GET['date']) ? $_GET['date'] : null;
-$view = 'monthly';
+$selected_date = (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']))
+    ? $_GET['date']
+    : null;
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +86,7 @@ $view = 'monthly';
     <title>Töögraafik</title>
     <script>
         function openDay(date) {
-            window.location.href = 'kalender.php?date=' + date;
+            window.location.href = 'kalender.php?year=<?php echo $year; ?>&month=<?php echo $month; ?>&date=' + date;
         }
     </script>
 </head>
@@ -101,17 +105,21 @@ $view = 'monthly';
     $prev_year  = $month == 1 ? $year - 1 : $year;
     $next_month = $month == 12 ? 1 : $month + 1;
     $next_year  = $month == 12 ? $year + 1 : $year;
+    $today_year  = date('Y');
+    $today_month = date('m');
+    $today_date  = date('Y-m-d');
     ?>
 
     <div class="calendar-navigation">
         <div class="current-month"><?php echo $current_month_name . ' ' . $year; ?></div>
         <div class="navigation-buttons">
             <a href="kalender.php?year=<?php echo $prev_year; ?>&month=<?php echo $prev_month; ?>">Eelmine Kuu</a>
+            <a href="kalender.php?year=<?php echo $today_year; ?>&month=<?php echo $today_month; ?>&date=<?php echo $today_date; ?>" class="today-btn">Täna</a>
             <a href="kalender.php?year=<?php echo $next_year; ?>&month=<?php echo $next_month; ?>">Järgmine Kuu</a>
         </div>
     </div>
 
-    <?php generateCalendar($year, $month, $view, $conn, $selected_date); ?>
+    <?php generateCalendar($year, $month, $conn, $selected_date); ?>
 
     <?php if ($selected_date): ?>
         <div class="daily-view">
@@ -156,9 +164,8 @@ $view = 'monthly';
                         $kasutajanimi = htmlspecialchars($appointment['kasutajanimi']);
                         $kalendri_id  = urlencode($appointment['kalendri_id']);
 
-                        $start_hour = (int) explode(":", $appointment['algus_aeg'])[0];
-                        $end_hour   = (int) explode(":", $appointment['lopp_aeg'])[0];
-                        $duration   = $end_hour - $start_hour;
+                        $duration = (int)explode(":", $appointment['lopp_aeg'])[0]
+                                 - (int)explode(":", $appointment['algus_aeg'])[0];
 
                         echo "<tr>";
                         echo "<td>$algus_aeg kuni $lopp_aeg</td>";

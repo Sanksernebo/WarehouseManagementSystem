@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once '../db/laoseis.php';
+require_once '../includes/csrf.php';
 
 if (isset($_GET['kalendri_id'])) {
     $kalendri_id = $_GET['kalendri_id'];
@@ -26,34 +27,61 @@ if (isset($_GET['kalendri_id'])) {
     exit;
 }
 
-$error = '';
+$error        = '';
+$error_fields  = [];
+$conflict_info = null;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    require_once '../includes/csrf.php';
     csrf_verify();
 
-    $kliendi_nimi  = $_POST['kliendi_nimi'];
+    $kliendi_nimi    = $_POST['kliendi_nimi'];
     $broneeritud_aeg = $_POST['broneeritud_aeg'];
-    $algus_aeg     = $_POST['algus_aeg'];
-    $lopp_aeg      = $_POST['lopp_aeg'];
-    $kirjeldus     = $_POST['kirjeldus'];
-    $reg_nr        = $_POST['reg_nr'];
+    $algus_aeg       = $_POST['algus_aeg'];
+    $lopp_aeg        = $_POST['lopp_aeg'];
+    $kirjeldus       = $_POST['kirjeldus'];
+    $reg_nr          = $_POST['reg_nr'];
+
+    $appointment['kliendi_nimi']    = $kliendi_nimi;
+    $appointment['broneeritud_aeg'] = $broneeritud_aeg;
+    $appointment['algus_aeg']       = $algus_aeg;
+    $appointment['lopp_aeg']        = $lopp_aeg;
+    $appointment['kirjeldus']       = $kirjeldus;
+    $appointment['reg_nr']          = $reg_nr;
 
     if ($algus_aeg >= $lopp_aeg) {
-        $error = "Algusaeg peab olema enne lõppaega.";
-    } elseif ($broneeritud_aeg < date('Y-m-d')) {
-        $error = "Kuupäev ei saa olla minevikus.";
+        $error        = "Algusaeg peab olema enne lõppaega.";
+        $error_fields = ['algus_aeg', 'lopp_aeg'];
     } else {
-        $update_sql = "UPDATE Kalender SET kliendi_nimi=?, broneeritud_aeg=?, algus_aeg=?, lopp_aeg=?, kirjeldus=?, reg_nr=? WHERE kalendri_id=?";
-        $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("ssssssi", $kliendi_nimi, $broneeritud_aeg, $algus_aeg, $lopp_aeg, $kirjeldus, $reg_nr, $kalendri_id);
+        $conflict = $conn->prepare(
+            "SELECT kliendi_nimi, reg_nr, algus_aeg, lopp_aeg FROM Kalender
+             WHERE broneeritud_aeg = ?
+               AND algus_aeg < ? AND lopp_aeg > ?
+               AND kalendri_id != ?
+             LIMIT 1"
+        );
+        $conflict->bind_param("sssi", $broneeritud_aeg, $lopp_aeg, $algus_aeg, $kalendri_id);
+        $conflict->execute();
+        $conflict_result = $conflict->get_result();
 
-        if ($update_stmt->execute()) {
-            header('Location: kalender.php');
-            exit;
+        if ($conflict_row = $conflict_result->fetch_assoc()) {
+            $error         = "Valitud ajavahemik on juba broneeritud.";
+            $error_fields  = ['broneeritud_aeg', 'algus_aeg', 'lopp_aeg'];
+            $conflict_info = $conflict_row;
         } else {
-            $error = "Uuendamine ebaõnnestus.";
+            $update_stmt = $conn->prepare(
+                "UPDATE Kalender SET kliendi_nimi=?, broneeritud_aeg=?, algus_aeg=?, lopp_aeg=?, kirjeldus=?, reg_nr=? WHERE kalendri_id=?"
+            );
+            $update_stmt->bind_param("ssssssi", $kliendi_nimi, $broneeritud_aeg, $algus_aeg, $lopp_aeg, $kirjeldus, $reg_nr, $kalendri_id);
+
+            if ($update_stmt->execute()) {
+                header('Location: kalender.php');
+                exit;
+            } else {
+                $error = "Uuendamine ebaõnnestus.";
+            }
+            $update_stmt->close();
         }
+        $conflict->close();
     }
 }
 ?>
@@ -76,7 +104,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <h1>Muuda broneeringut</h1>
 
     <?php if ($error): ?>
-        <p class="error"><?php echo htmlspecialchars($error); ?></p>
+        <p class="error">
+            <?= htmlspecialchars($error) ?>
+            <?php if ($conflict_info): ?>
+                — <strong><?= htmlspecialchars($conflict_info['kliendi_nimi']) ?></strong>
+                <?php if ($conflict_info['reg_nr']): ?>
+                    (<?= htmlspecialchars($conflict_info['reg_nr']) ?>)
+                <?php endif; ?>
+                <?= htmlspecialchars(substr($conflict_info['algus_aeg'], 0, 5)) ?>–<?= htmlspecialchars(substr($conflict_info['lopp_aeg'], 0, 5)) ?>
+            <?php endif; ?>
+        </p>
     <?php endif; ?>
 
     <form method="POST">
@@ -90,13 +127,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="text" name="reg_nr" value="<?php echo htmlspecialchars($appointment['reg_nr']); ?>"><br>
 
         <label for="broneeritud_aeg">Broneeritud kuupäev:</label>
-        <input type="date" name="broneeritud_aeg" value="<?php echo htmlspecialchars($appointment['broneeritud_aeg']); ?>" required><br>
+        <input type="date" name="broneeritud_aeg" value="<?php echo htmlspecialchars($appointment['broneeritud_aeg']); ?>"
+               class="<?= in_array('broneeritud_aeg', $error_fields) ? 'field-error' : '' ?>" required><br>
 
         <label for="algus_aeg">Algusaeg:</label>
-        <input type="time" name="algus_aeg" step="3600" min="09:00" max="18:00" value="<?php echo htmlspecialchars($appointment['algus_aeg']); ?>" required><br>
+        <select id="algus_aeg" name="algus_aeg" class="<?= in_array('algus_aeg', $error_fields) ? 'field-error' : '' ?>" required>
+            <?php for ($h = 9; $h <= 17; $h++):
+                $val = sprintf('%02d:00', $h); ?>
+                <option value="<?= $val ?>" <?= substr($appointment['algus_aeg'], 0, 5) === $val ? 'selected' : '' ?>><?= $val ?></option>
+            <?php endfor; ?>
+        </select><br>
 
         <label for="lopp_aeg">Lõppaeg:</label>
-        <input type="time" name="lopp_aeg" step="3600" min="09:00" max="18:00" value="<?php echo htmlspecialchars($appointment['lopp_aeg']); ?>" required><br>
+        <select id="lopp_aeg" name="lopp_aeg" class="<?= in_array('lopp_aeg', $error_fields) ? 'field-error' : '' ?>" required>
+            <?php for ($h = 10; $h <= 18; $h++):
+                $val = sprintf('%02d:00', $h); ?>
+                <option value="<?= $val ?>" <?= substr($appointment['lopp_aeg'], 0, 5) === $val ? 'selected' : '' ?>><?= $val ?></option>
+            <?php endfor; ?>
+        </select><br>
 
         <label for="kirjeldus">Kirjeldus:</label>
         <textarea name="kirjeldus"><?php echo htmlspecialchars($appointment['kirjeldus']); ?></textarea><br>
@@ -108,20 +156,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php require_once '../includes/footer.php'; ?>
 </body>
-
-<script>
-    const startTimeInput = document.getElementById('algus_aeg');
-    const endTimeInput = document.getElementById('lopp_aeg');
-
-    startTimeInput.addEventListener('input', (e) => {
-        let hour = e.target.value.split(':')[0];
-        e.target.value = `${hour}:00`;
-    });
-
-    endTimeInput.addEventListener('input', (e) => {
-        let hour = e.target.value.split(':')[0];
-        e.target.value = `${hour}:00`;
-    });
-</script>
 
 </html>
