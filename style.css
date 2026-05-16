@@ -378,6 +378,11 @@ form input[type="submit"]:hover {
   font-size: 20px;
 }
 
+.field-error {
+  border: 2px solid red;
+  background-color: #fff0f0;
+}
+
 /* Töögraafiku kalender */
 .calendar-month {
   display: grid;
@@ -403,9 +408,20 @@ form input[type="submit"]:hover {
 
 .current-day {
   background-color: #f0e68c;
-  /* Light yellow background */
   border: 2px solid #ffa500;
-  /* Orange border */
+}
+
+.selected-day {
+  background-color: #2e86c1;
+  border: 2px solid #1a5276;
+  color: #ffffff;
+}
+
+.current-day.selected-day {
+  background-color: #f0e68c;
+  border: 3px solid #e67e00;
+  box-shadow: 0 0 0 3px #ffa500;
+  color: #000;
 }
 
 .time-bar {
@@ -419,6 +435,7 @@ form input[type="submit"]:hover {
   height: 100%;
   outline-style: solid;
   outline-width: thin;
+  outline-color: #000;
 }
 
 .booked {
@@ -476,7 +493,16 @@ form input[type="submit"]:hover {
 
 .navigation-buttons a:hover {
   background: rgba(137, 206, 235, 0.6);
-  /* Lighter color on hover */
+}
+
+.navigation-buttons a.today-btn {
+  background: #f0e68c;
+  border: 2px solid #ffa500;
+  color: #000;
+}
+
+.navigation-buttons a.today-btn:hover {
+  background: #e8d87a;
 }
 
 .view-switcher-button {
