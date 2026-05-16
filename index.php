@@ -1,12 +1,9 @@
 <?php
 session_start();
-// Check if the user is not logged in
 if (!isset($_SESSION['user_id'])) {
-    // Redirect to the login page
     header("Location: src/login/login.php");
     exit;
 }
-global $conn;
 include_once 'src/db/laoseis.php';
 $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
 ?>
@@ -24,58 +21,8 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
 </head>
 
 <body>
-    <nav>
-        <div class="logo">
-            <a href="#">
-                <img src="src/img/cartehniklogo_valge.svg" alt="Cartehnik logo">
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="index.php">Avaleht</a>
-            <a href="src/myydud_tooted/myyk.php">Müüdud Tooted</a>
-            <a href="src/tehtud_tood/tehtud_tood.php">Tehtud Tööd</a>
-            <div class="dropdown">
-                <button class="dropbtn">Rehvid
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="src/rehv_myyk/rehv_myyk.php">Müüdud Rehvid</a>
-                    <a href="src/rehv_ladu/rehv_ladu.php">Rehvid Laos</a>
-                </div>
-            </div>
-            <a href="src/kalender/kalender.php">Töögraafik</a>
-            <a href="src/login/logout.php">
-                <?php if (isset($_SESSION['username'])): ?>
-                    <span><?php echo htmlspecialchars($_SESSION['username']); ?>,</span>
-                <?php endif; ?>
-                Logi välja
-            </a>
-        </div>
-    </nav>
+<?php require_once 'src/includes/nav_root.php'; ?>
 
-    <?php
-    if (mysqli_num_rows($result) > 0) {
-    } else {
-        echo "<p style='font-weight:bold'>Tulemusi ei leitud</p>";
-        echo "
-  <nav>
-      <a href=index.php>Avaleht</a>
-      <a href=src/myydud_tooted/myyk.php>Müüdud Tooted</a>
-      <a href=src/tehtud_tood/tehtud_tood.php>Tehtud Tööd</a>
-      <div class=dropdown>
-          <button class=dropbtn>Rehvid
-              <i class=fa fa-caret-down></i>
-          </button>
-          <div class=dropdown-content>
-              <a href=src/rehv_myyk/rehv_myyk.php>Müüdud Rehvid</a>
-              <a href=src/rehv_ladu/rehv_ladu.php>Rehvid Laos</a>
-          </div>
-      </div>
-  </nav>";
-    }
-    ;
-
-    ?>
     <h1>Laoseis</h1>
     <a href="src/lisa_lattu/lisa_lattu.php" class="lisa-link">Lisa Laoseisu</a>
     <input type="text" id="searchBar" onkeyup="search()" placeholder="Sisesta Tootekood">
@@ -94,38 +41,36 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
         </thead>
         <tbody>
             <?php
-            $i = 0;
-            while ($row = mysqli_fetch_array($result)) {
-                ?>
-                <tr>
-                    <td><?php echo $row["Tootekood"]; ?></td>
-                    <td><?php echo $row["Nimetus"]; ?></td>
-                    <td><?php echo $row["Kogus"]; ?></td>
-                    <td><?php echo $row["Sisseost"]; ?></td>
-                    <td><?php echo $row["Jaehind"]; ?></td>
-                    <td><?php echo $row["Ost"]; ?></td>
-                    <td><?php echo $row["Olek"]; ?></td>
-                    <td>
-                        <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["toote_id"]; ?>">
-                            <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
-                        </a>
-                        <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["toote_id"]; ?>">
-                            <i class="fa-solid fa-trash fa-lg kustuta-icon"></i>
-                        </a>
-                    </td>
-                </tr>
-                <?php
-                $i++;
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_array($result)) {
+                    ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row["Tootekood"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["Nimetus"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["Kogus"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["Sisseost"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["Jaehind"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["Ost"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["Olek"]); ?></td>
+                        <td>
+                            <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["toote_id"]; ?>">
+                                <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
+                            </a>
+                            <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["toote_id"]; ?>">
+                                <i class="fa-solid fa-trash fa-lg kustuta-icon"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            } else {
+                echo "<tr><td colspan='8'><p style='font-weight:bold'>Tulemusi ei leitud</p></td></tr>";
             }
             ?>
         </tbody>
     </table>
-    <footer>
-        <p>Rõngu Auto OÜ</p>
-        <p>Copyright &copy;
-            <script>document.write(new Date().getFullYear())</script>
-        </p>
-    </footer>
+
+<?php require_once 'src/includes/footer.php'; ?>
 </body>
 <script>
     function search() {
@@ -140,25 +85,22 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
             if (td) {
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = ""; // Show the row
+                    tr[i].style.display = "";
                 } else {
-                    tr[i].style.display = "none"; // Hide the row
+                    tr[i].style.display = "none";
                 }
             }
         }
 
-        // Ensure the thead remains visible even after filtering
         var headerRow = table.querySelector("thead tr");
         if (headerRow) {
-            headerRow.style.display = ""; // Show the header row
+            headerRow.style.display = "";
         }
     }
-
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var currentUrl = window.location.href;
-
         document.querySelectorAll('.nav-links a').forEach(function (link) {
             if (link.href === currentUrl) {
                 link.classList.add('active');

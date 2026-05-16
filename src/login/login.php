@@ -6,27 +6,28 @@ $error_flag = false; // Flag to track login errors
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    // Retrieve user from the database
-    $query = "SELECT ID, parool FROM Login WHERE kasutajanimi = '$username'";
-    $result = mysqli_query($conn, $query);
+    $stmt = mysqli_prepare($conn, "SELECT ID, parool FROM Login WHERE kasutajanimi = ?");
+    mysqli_stmt_bind_param($stmt, 's', $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if ($result && mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
-        // Verify password
         if (password_verify($password, $user['parool'])) {
             $_SESSION['user_id'] = $user['ID'];
-            $_SESSION['username'] = $username; // Store the username in the session
-            header("Location: ../../index.php"); // Redirect avalehele
+            $_SESSION['username'] = $username;
+            header("Location: ../../index.php");
             exit;
         } else {
-            $error_flag = true; // Incorrect password
+            $error_flag = true;
         }
     } else {
-        $error_flag = true; // Username not found
+        $error_flag = true;
     }
+    mysqli_stmt_close($stmt);
 }
 
 ?>

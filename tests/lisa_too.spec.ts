@@ -1,25 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-// Utility function to ensure the user is logged in
-async function ensureLoggedIn(page) {
-
-    // Attempt to navigate to the main page
-    await page.goto('http://localhost:8000/index.php');
-
-    // Check if certain elements that indicate a logged-in state are present
-    if (await page.locator('nav').isVisible() && await page.locator('.logout-button').isVisible()) {
-        // User is already logged in
-        return;
-    } else {
-        // User is not logged in, perform the login
-        await page.goto('http://localhost:8000/src/login/login.php');
-        await page.fill('input[name="username"]', 'Sanks');
-        await page.fill('input[name="password"]', 'qwerty');
-        await page.click('input[type="submit"]');
-        // Check to confirm login was successful
-        await expect(page.url()).toContain('index.php');
-    }
-}
+import { ensureLoggedIn } from './helpers';
 
 test.describe('Tehtud Tööd testid', () => {
     test.beforeEach(async ({ page }) => {
