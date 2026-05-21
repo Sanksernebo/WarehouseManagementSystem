@@ -1,56 +1,71 @@
-import { test, expect } from '@playwright/test';
-import { ensureLoggedIn } from './helpers';
+import { test, expect, Page } from '@playwright/test';
+import { BASE_URL, ensureLoggedIn } from './helpers';
+
+// RegNr column in DB is VARCHAR(10) — keep all identifiers ≤ 10 chars.
+// Use last 6 digits of timestamp (000000–999999) so each test run gets a
+// unique RegNr without exceeding the column limit.
+const RUN_ID = (Date.now() % 1000000).toString().padStart(6, '0');
+
+// Submit via the named submit button so PHP's isset($_POST['submit']) check
+// passes, while also bypassing any fixed-footer pointer interception.
+async function submitForm(page: Page) {
+    await page.locator('form').evaluate((form: HTMLFormElement) => {
+        const btn = form.querySelector<HTMLInputElement>('input[type="submit"]');
+        if (btn) form.requestSubmit(btn);
+        else form.requestSubmit();
+    });
+}
+
+async function createJob(page: Page, regNr: string, description: string) {
+    await page.goto(`${BASE_URL}/src/tehtud_tood/lisa_too.php`, { waitUntil: 'load' });
+    await page.fill('input[name="RegNr"]', regNr);
+    await page.fill('input[name="Kuupaev"]', '2030-01-15T10:00');
+    await page.fill('input[name="Odomeeter"]', '100000');
+    await page.fill('textarea[name="Tehtud_tood"]', description);
+    await Promise.all([
+        page.waitForURL(/tehtud_tood\.php/, { waitUntil: 'load' }),
+        submitForm(page),
+    ]);
+}
 
 test.describe('Tehtud Tööd testid', () => {
     test.beforeEach(async ({ page }) => {
         await ensureLoggedIn(page);
     });
-    test('test 1: Searchbar functionality for RegNr with multiple results', async ({ page }) => {
-        await page.waitForLoadState('networkidle');
-        await page.click('a[href="src/tehtud_tood/tehtud_tood.php"]');
 
-        // Input a specific RegNr in the searchBar and trigger the search
-        const testCode = '45ZGI';
-        await page.fill('#searchBar', testCode);
-        await page.keyboard.press('Enter');
+    test('search bar filters jobs by registration number', async ({ page }, testInfo) => {
+        // SR prefix + 6-digit run ID + worker index = 9 chars (fits VARCHAR(10))
+        const regNr = `SR${RUN_ID}${testInfo.workerIndex}`;
+        // Create two jobs with the same RegNr to verify multiple-row filtering
+        await createJob(page, regNr, 'Otsingu test 1');
+        await createJob(page, regNr, 'Otsingu test 2');
 
-        // Locator for the first cells in each visible row
-        const cells = page.locator('tbody tr:not([style*="display: none"]) td:first-child');
+        // After second createJob we are already on tehtud_tood.php
+        await page.fill('#searchBar', regNr);
+        await page.locator('#searchBar').press('End'); // triggers real keyup → search()
 
-        // Get count of cells
-        const count = await cells.count();
-
-        // Loop through each cell and check if it contains the testCode
+        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
+        const count = await visibleRows.count();
+        expect(count).toBeGreaterThanOrEqual(2);
         for (let i = 0; i < count; i++) {
-            const cellText = await cells.nth(i).textContent();
-            expect(cellText).toContain(testCode);
+            await expect(visibleRows.nth(i).locator('td:first-child')).toContainText(regNr);
         }
     });
 
-    test('test 2: Add a new job to database and check the table', async ({ page }) => {
-        // Navigate to Tehtud Tööd page
-        await page.click('a[href="src/tehtud_tood/tehtud_tood.php"]');
+    test('new job appears in the list after being added', async ({ page }, testInfo) => {
+        // AD prefix + 6-digit run ID + worker index = 9 chars (fits VARCHAR(10))
+        const regNr = `AD${RUN_ID}${testInfo.workerIndex}`;
+        const description = 'Uue töö kirjeldus';
 
-        await page.click('a[href="lisa_too.php"]');
-        // Check that are on the correct page
-        await expect(page.url()).toContain('lisa_too.php');
+        await createJob(page, regNr, description);
 
-        // Test data for form
-        const RegNr = '69ABC';
-        const Datetime = '2024-09-23T11:00';
-        const Odomeeter = '102030';
-        const Description = 'Test Test some work';
+        // createJob redirects to tehtud_tood.php — search immediately
+        await page.fill('#searchBar', regNr);
+        await page.locator('#searchBar').press('End');
 
-        // Fill the form
-        await page.fill('input[name="RegNr"]', RegNr);
-        await page.fill('input[name=Kuupaev]', Datetime);
-        await page.fill('input[name="Odomeeter"]', Odomeeter);
-        await page.fill('textarea[name="Tehtud_tood"]', Description);
-
-        await page.click('input[type="submit"]');
-        // Check that after add, get redirected to Tehtud Tööd page
-        expect(page.url()).toContain('tehtud_tood.php');
-
-        await expect(page.locator('#myTable tbody tr:first-of-type td:nth-of-type(1)')).toHaveText(RegNr);
+        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
+        await expect(visibleRows).toHaveCount(1);
+        await expect(visibleRows.first().locator('td:first-child')).toContainText(regNr);
+        await expect(visibleRows.first().locator('td:nth-child(4)')).toContainText(description);
     });
 });
