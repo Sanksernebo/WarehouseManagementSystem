@@ -1,0 +1,137 @@
+name: Test and Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: testroot
+          MYSQL_DATABASE: laoseis_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -ptestroot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -uroot -ptestroot --silent 2>/dev/null; then
+              echo "MySQL is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "MySQL did not become ready" >&2
+          exit 1
+
+      - name: Import schema
+        run: mysql -h 127.0.0.1 -uroot -ptestroot laoseis_test < db/schema.sql
+
+      - name: Write CI database config
+        run: |
+          cat > src/db/laoseis.php <<'PHP'
+          <?php
+          $conn = mysqli_connect('127.0.0.1', 'root', 'testroot', 'laoseis_test');
+          if (!$conn) { die('Connection failed: ' . mysqli_connect_error()); }
+          PHP
+
+      - name: Seed test user
+        run: |
+          HASH=$(php -r "echo password_hash('testtest', PASSWORD_DEFAULT);")
+          mysql -h 127.0.0.1 -uroot -ptestroot laoseis_test -e \
+            "INSERT INTO Login (kasutajanimi, parool) VALUES ('TestUser', '$HASH');"
+
+      - name: Start PHP server
+        run: |
+          php -S localhost:8000 > php.log 2>&1 &
+          for i in {1..30}; do
+            if curl -sf http://localhost:8000/ -o /dev/null; then
+              echo "PHP server is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "PHP server did not start. Log:" >&2
+          cat php.log >&2
+          exit 1
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      SSH_USER: ${{ secrets.ZONE_SSH_USER }}
+      SSH_HOST: ${{ secrets.ZONE_SSH_HOST }}
+      DEPLOY_PATH: ${{ secrets.ZONE_DEPLOY_PATH }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ZONE_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Snapshot current webroot
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
+            "DEPLOY='$DEPLOY_PATH' SHA='$SHA' bash -s" <<'REMOTE'
+          set -e
+          PARENT="$(dirname "$DEPLOY")"
+          BASENAME="$(basename "$DEPLOY")"
+          cd "$PARENT"
+          if [ -d "$BASENAME" ]; then
+            cp -a "$BASENAME" "${BASENAME}.bak-${SHA}"
+            ls -1dt "${BASENAME}".bak-* 2>/dev/null | tail -n +4 | xargs -r rm -rf
+            echo "Snapshot created: ${BASENAME}.bak-${SHA}"
+          else
+            echo "No existing webroot at $DEPLOY — skipping snapshot (first deploy)"
+          fi
+          REMOTE
+
+      - name: Deploy via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude-from=.deployignore \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
