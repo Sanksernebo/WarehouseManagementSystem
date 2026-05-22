@@ -38,7 +38,12 @@ jobs:
           done
           exit 1
       - name: Import schema
-        run: mysql -h 127.0.0.1 -uroot -ptestroot laoseis_test < db/schema.sql
+        run: |
+          # Rewrite DEFINER clauses to CURRENT_USER so triggers/views/procedures
+          # run as the CI MySQL user instead of the original Zone DB user
+          # (which doesn't exist in the ephemeral container).
+          sed -E 's/DEFINER=`[^`]*`@`[^`]*`/DEFINER=CURRENT_USER/g' db/schema.sql \
+            | mysql -h 127.0.0.1 -uroot -ptestroot laoseis_test
       - name: Write CI database config
         run: |
           mkdir -p src/db
