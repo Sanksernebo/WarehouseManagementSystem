@@ -54,7 +54,8 @@ jobs:
             "INSERT INTO Login (kasutajanimi, parool) VALUES ('TestUser', '$HASH');"
       - name: Start PHP server
         run: |
-          php -S localhost:8000 > php.log 2>&1 &
+          php -d display_errors=1 -d error_reporting=E_ALL -d log_errors=1 \
+            -S localhost:8000 > php.log 2>&1 &
           for i in {1..30}; do
             if curl -sf http://localhost:8000/ -o /dev/null; then exit 0; fi
             sleep 1
@@ -64,9 +65,16 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
       - run: npx playwright test
+      - name: Dump PHP server log on failure
+        if: failure()
+        run: |
+          echo "===== php.log ====="
+          cat php.log || echo "(no php.log)"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            php.log
           retention-days: 7
