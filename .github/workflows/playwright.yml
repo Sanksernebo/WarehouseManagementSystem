@@ -41,6 +41,7 @@ jobs:
         run: mysql -h 127.0.0.1 -uroot -ptestroot laoseis_test < db/schema.sql
       - name: Write CI database config
         run: |
+          mkdir -p src/db
           cat > src/db/laoseis.php <<'PHP'
           <?php
           $conn = mysqli_connect('127.0.0.1', 'root', 'testroot', 'laoseis_test');
