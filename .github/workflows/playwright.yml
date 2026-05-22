@@ -58,6 +58,8 @@ jobs:
           mysql -h 127.0.0.1 -uroot -ptestroot laoseis_test -e \
             "INSERT INTO Login (kasutajanimi, parool) VALUES ('TestUser', '$HASH');"
       - name: Start PHP server
+        env:
+          PHP_CLI_SERVER_WORKERS: '4'
         run: |
           php -d display_errors=1 -d error_reporting=E_ALL -d log_errors=1 \
             -S localhost:8000 > php.log 2>&1 &
@@ -69,7 +71,7 @@ jobs:
           exit 1
       - run: npm ci
       - run: npx playwright install --with-deps
-      - run: npx playwright test
+      - run: npx playwright test --workers=4
       - name: Dump PHP server log on failure
         if: failure()
         run: |
