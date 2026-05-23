@@ -1,75 +1,94 @@
-import { test, expect } from '@playwright/test';
-import { ensureLoggedIn } from './helpers';
+import { test, expect, Page } from '@playwright/test';
+import { BASE_URL, ensureLoggedIn } from './helpers';
+
+// Unique prefix per test run so each run creates fresh DB rows that won't
+// clash with existing data or previous test runs.
+const RUN_ID = Date.now().toString().slice(-10);
+
+// Submit a form via its submit button so PHP's isset($_POST['submit']) check
+// passes, while also bypassing any fixed-footer pointer interception.
+async function submitForm(page: Page) {
+    await page.locator('form').evaluate((form: HTMLFormElement) => {
+        const btn = form.querySelector<HTMLInputElement>('input[type="submit"]');
+        if (btn) form.requestSubmit(btn);
+        else form.requestSubmit();
+    });
+}
+
+async function createProduct(page: Page, tootekood: string, nimetus: string) {
+    await page.goto(`${BASE_URL}/src/lisa_lattu/lisa_lattu.php`, { waitUntil: 'load' });
+    await page.fill('input[name="Tootekood"]', tootekood);
+    await page.fill('input[name="Nimetus"]', nimetus);
+    await page.fill('input[name="Kogus"]', '1');
+    await page.fill('input[name="Sisseost"]', '1.00');
+    await page.fill('input[name="Jaehind"]', '2.00');
+    await Promise.all([
+        page.waitForURL(/index\.php/, { waitUntil: 'load' }),
+        submitForm(page),
+    ]);
+}
+
+async function deleteProduct(page: Page, tootekood: string) {
+    await page.goto(`${BASE_URL}/index.php`, { waitUntil: 'load' });
+    const row = page.locator('tbody tr').filter({ hasText: tootekood });
+    if (await row.count() === 0) return;
+    const href = await row.locator('a[href*="delete-process.php"]').getAttribute('href');
+    if (!href) return;
+    await page.goto(`${BASE_URL}/${href}`, { waitUntil: 'load' });
+    await Promise.all([
+        page.waitForURL(/index\.php/, { waitUntil: 'load' }),
+        page.locator('form').evaluate((form: HTMLFormElement) => {
+            const btn = form.querySelector<HTMLInputElement>('input[name="confirm_delete"]');
+            if (btn) form.requestSubmit(btn);
+        }),
+    ]);
+}
 
 test.describe('Index page tests', () => {
-  test.beforeEach(async ({ page }) => {
-    await ensureLoggedIn(page);
-  });
-
-  test('test 1: Check navigation bar elements', async ({ page }) => {
-    await expect(page.locator('nav')).toBeVisible();
-    // check for logo in nav-bar
-    await expect(page.locator('.logo img')).toHaveAttribute('src', 'src/img/cartehniklogo_valge.svg');
-    // check for nav-bar link
-    const link = page.locator('a[href="src/tehtud_tood/tehtud_tood.php"]');
-    await expect(link).toHaveAttribute('href', 'src/tehtud_tood/tehtud_tood.php');
-  });
-
-  test('test 2: Searchbar functionality for specific Tootekood', async ({ page }) => {
-    await page.waitForLoadState('networkidle');  // Wait for the page to be idle
-
-    // Input a specific Tootekood in the searchBar and trigger the search
-    const testCode = '750-';
-    await page.fill('#searchBar', testCode);
-
-    await page.keyboard.press('Enter');
-
-    // Check if at least one visible row contains the expected product code
-    const rowsDisplayingCode = page.locator(`tbody tr:not([style*="display: none"]) td:first-child`);
-    await expect(rowsDisplayingCode).toHaveText(new RegExp(testCode));  // Using a regular expression to check for partial match
-
-    // Verify that the rows showing are correct
-    const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
-    await expect(visibleRows).toHaveCount(1);  // Check if only one row is visible
-
-    // Ensure each visible cell in the first column contains the test code if visible
-    const visibleRowsCodes = page.locator('tbody tr:not([style*="display: none"]) td:first-child');
-    await visibleRowsCodes.allTextContents().then(texts => {
-      texts.forEach(text => {
-        expect(text).toContain(testCode);
-      });
+    test.beforeEach(async ({ page }) => {
+        await ensureLoggedIn(page);
     });
-  });
 
-  test('test 3: Change product data', async ({ page }) => {
-    const productCode = '148-H203WK';
-    const updateLink = await page.locator(`td:text("${productCode}")`).locator('xpath=..').locator('td:last-child a').first();
+    test('navigation bar shows logo and links', async ({ page }) => {
+        await expect(page.locator('nav')).toBeVisible();
+        await expect(page.locator('.logo img')).toHaveAttribute('src', 'src/img/cartehniklogo_valge.svg');
+        await expect(page.locator('a[href="src/tehtud_tood/tehtud_tood.php"]')).toBeVisible();
+    });
 
-    await updateLink.click();
+    test('search bar filters stock table by product code', async ({ page }, testInfo) => {
+        const tootekood = `E2E-SRCH-${RUN_ID}-${testInfo.workerIndex}`;
+        await createProduct(page, tootekood, 'Testoode otsing');
 
-    await page.waitForSelector('form[name="frmUser"]');
+        await page.goto(`${BASE_URL}/index.php`, { waitUntil: 'load' });
+        await page.fill('#searchBar', tootekood);
+        await page.locator('#searchBar').dispatchEvent('keyup');
 
-    // New name in the Nimetus field
-    const newName = 'Kütusefilter Ford Transit';
-    await page.fill('input[name="Nimetus"]', newName);
+        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
+        await expect(visibleRows).toHaveCount(1);
+        await expect(visibleRows.first().locator('td:first-child')).toContainText(tootekood);
 
-    // Submit the form
-    await page.click('input[type="submit"]');
+        await deleteProduct(page, tootekood);
+    });
 
-    // Verify the redirection to index page
-    await expect(page.url()).toContain('index.php');
+    test('product name can be updated and shows the new value', async ({ page }, testInfo) => {
+        const tootekood = `E2E-EDIT-${RUN_ID}-${testInfo.workerIndex}`;
+        const updatedName = 'Uuendatud nimetus';
+        await createProduct(page, tootekood, 'Algne nimetus');
 
-    // Attempt to fetch the text content of the updated name field
-    const nameCell = page.locator(`td:text("${productCode}")`).locator('xpath=..').locator('td:nth-child(2)');
-    await expect(nameCell).toHaveCount(1);
+        await page.goto(`${BASE_URL}/index.php`, { waitUntil: 'load' });
+        const row = page.locator('tbody tr').filter({ hasText: tootekood });
+        const editHref = await row.locator('a[href*="update-process.php"]').getAttribute('href');
+        await page.goto(`${BASE_URL}/${editHref}`, { waitUntil: 'load' });
 
-    const updatedName = await nameCell.textContent();
+        await page.fill('input[name="Nimetus"]', updatedName);
+        await Promise.all([
+            page.waitForURL(/index\.php/, { waitUntil: 'load' }),
+            submitForm(page),
+        ]);
 
-    // Check if updatedName is not null or empty
-    if (updatedName) {
-      expect(updatedName.trim()).toBe(newName);
-    } else {
-      throw new Error('No updated name found or element does not contain text.');
-    }
-  });
+        const updatedRow = page.locator('tbody tr').filter({ hasText: tootekood });
+        await expect(updatedRow.locator('td:nth-child(2)')).toHaveText(updatedName);
+
+        await deleteProduct(page, tootekood);
+    });
 });
