@@ -17,3 +17,4 @@ db/
 error_log
 src/db/laoseis.php
 rollback.sh
+.claude/
