@@ -10,8 +10,20 @@
 window.initSearchbar = function (config) {
     var input     = document.getElementById(config.inputId);
     var tbody     = document.getElementById(config.tbodyId);
-    var loadMore  = document.getElementById(config.loadMoreId);
     var errorBox  = document.getElementById(config.errorId);
+
+    // The "Laadi veel" button belongs under the loaded rows, not the
+    // searchbar, so create it right after the table that owns the tbody.
+    var loadMore  = document.getElementById(config.loadMoreId);
+    if (!loadMore && tbody) {
+        loadMore = document.createElement('button');
+        loadMore.id = config.loadMoreId;
+        loadMore.type = 'button';
+        loadMore.className = 'lisa-link';
+        loadMore.textContent = 'Laadi veel';
+        var table = tbody.closest('table') || tbody.parentElement;
+        table.insertAdjacentElement('afterend', loadMore);
+    }
 
     if (!input || !tbody || !loadMore || !errorBox) return;
 

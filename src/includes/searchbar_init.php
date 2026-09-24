@@ -17,10 +17,11 @@ $initial_has_more_js = isset($searchbar_initial_has_more)
 ?>
 <input type="text" id="searchBar" autocomplete="off" placeholder="<?php echo htmlspecialchars($placeholder); ?>">
 <div id="searchError" class="search-error" role="status" aria-live="polite" aria-atomic="true"></div>
-<button id="loadMore" type="button" class="lisa-link">Laadi veel</button>
 <script src="<?php echo htmlspecialchars($js_path); ?>"></script>
 <script>
     // The table (#tableBody) is rendered after this include, so wait for it.
+    // searchbar.js places the "Laadi veel" button directly after the table
+    // so users can keep scrolling through results instead of jumping back up.
     document.addEventListener('DOMContentLoaded', function () {
         initSearchbar({
             endpoint:   <?php echo json_encode($endpoint); ?>,

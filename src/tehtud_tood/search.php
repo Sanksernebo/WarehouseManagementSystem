@@ -30,7 +30,6 @@ if ($q === '') {
         $conn,
         "$select_and_from
          WHERE RegNr       LIKE ?
-            OR Odomeeter   LIKE ?
             OR Tehtud_tood LIKE ?
             OR DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') LIKE ?
          ORDER BY Kuupaev DESC
@@ -38,8 +37,8 @@ if ($q === '') {
     );
     if (!$stmt) { http_response_code(500); exit; }
     mysqli_stmt_bind_param(
-        $stmt, 'ssssii',
-        $like, $like, $like, $like, $limit, $offset
+        $stmt, 'sssii',
+        $like, $like, $like, $limit, $offset
     );
 }
 if (!mysqli_stmt_execute($stmt)) {
