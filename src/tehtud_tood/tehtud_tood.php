@@ -5,7 +5,13 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC");
+$result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC LIMIT 51");
+$rows = [];
+while ($row = mysqli_fetch_array($result)) {
+    $rows[] = $row;
+}
+$searchbar_initial_has_more = count($rows) > 50;
+if ($searchbar_initial_has_more) array_pop($rows);
 ?>
 <!DOCTYPE html>
 <html>
@@ -25,8 +31,13 @@ $result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT
 
     <h1>Tehtud Tööd</h1>
     <a href="lisa_too.php" class="lisa-link">Lisa Töö</a>
-    <input type="text" id="searchBar" onkeyup="search()" placeholder="Otsi Reg.Nr">
-    <table id=myTable>
+    <?php
+    $searchbar_endpoint    = 'search.php';
+    $searchbar_placeholder = 'Otsi';
+    $searchbar_js_path     = '../includes/searchbar.js';
+    require_once '../includes/searchbar_init.php';
+    ?>
+    <table id="myTable">
         <thead>
             <tr>
                 <td>Auto Reg.Nr</td>
@@ -36,31 +47,14 @@ $result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT
                 <td>Tegevus</td>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tableBody">
             <?php
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_array($result)) {
-                    ?>
-                    <tr>
-                        <td>
-                            <?php echo htmlspecialchars($row["RegNr"]); ?>
-                            <a href="../../src/pdf_generaator/pdf_koostamine.php?too_id=<?php echo $row['too_id']; ?>" target="_blank">
-                                <i class="fa-solid fa-file-pdf fa-lg pdf-icon"></i>
-                            </a>
-                        </td>
-                        <td><?php echo htmlspecialchars($row["FormattedDate"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Odomeeter"]); ?> km</td>
-                        <td><?php echo htmlspecialchars($row["Tehtud_tood"]); ?></td>
-                        <td>
-                            <a href="../../src/tehtud_tood/edit-work-process.php?too_id=<?php echo $row["too_id"]; ?>">
-                                <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php
+            if (count($rows) > 0) {
+                foreach ($rows as $row) {
+                    include '_row.php';
                 }
             } else {
-                echo "<tr><td colspan='5'><p style='font-weight:bold'>Tulemusi ei leitud</p></td></tr>";
+                echo "<tr class='empty-state'><td colspan='5'><p style='font-weight:bold'>Tulemusi ei leitud</p></td></tr>";
             }
             ?>
         </tbody>
@@ -68,32 +62,6 @@ $result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT
 
 <?php require_once '../includes/footer.php'; ?>
 </body>
-<script>
-    function search() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("searchBar");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0];
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-
-        var headerRow = table.querySelector("thead tr");
-        if (headerRow) {
-            headerRow.style.display = "";
-        }
-    }
-</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var currentUrl = window.location.href;

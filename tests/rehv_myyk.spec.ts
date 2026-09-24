@@ -107,11 +107,14 @@ test.describe('Rehvi Müük testid', () => {
             kuupaev: '2030-10-01',
         });
 
+        const respPromise = page.waitForResponse((r) =>
+            r.url().includes('rehv_myyk/search.php')
+        );
         await page.fill('#searchBar', regNr);
-        await page.locator('#searchBar').dispatchEvent('keyup');
+        await respPromise;
 
-        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
-        await expect(visibleRows).toHaveCount(1);
-        await expect(visibleRows.first().locator('td:first-child')).toContainText(regNr.toUpperCase());
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first().locator('td:first-child')).toContainText(regNr.toUpperCase());
     });
 });
