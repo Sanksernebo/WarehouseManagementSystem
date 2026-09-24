@@ -118,3 +118,62 @@ test.describe('Rehvi Müük testid', () => {
         await expect(rows.first().locator('td:first-child')).toContainText(regNr.toUpperCase());
     });
 });
+
+test.describe('Rehvi Müük muutmine', () => {
+    test.beforeEach(async ({ page }) => {
+        await ensureLoggedIn(page);
+    });
+
+    test('unauthenticated user is redirected to login from edit page', async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto(`${BASE_URL}/src/rehv_myyk/edit_rehv_myyk.php?id=1`);
+        await expect(page).toHaveURL(/login\.php/);
+    });
+
+    test('non-existent id renders an error message', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_myyk/edit_rehv_myyk.php?id=999999999`);
+        await expect(page.locator('body')).toContainText('Kirjet ei leitud');
+    });
+
+    test('edit form is pre-filled and changes persist', async ({ page }, testInfo) => {
+        const regNr = `ME${RUN_ID}${testInfo.workerIndex}`;
+        await createTireSale(page, {
+            regNr,
+            moot: '205/55R16',
+            tootja: 'Nokain',
+            kogus: '4',
+            hooaeg: 'Suverehv',
+            tarnija: 'INTERCARS',
+            kuupaev: '2030-03-10',
+        });
+
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(row).toHaveCount(1);
+        await Promise.all([
+            page.waitForURL(/edit_rehv_myyk\.php\?id=\d+/, { waitUntil: 'load' }),
+            row.locator('a[href*="edit_rehv_myyk.php"]').click(),
+        ]);
+
+        await expect(page.locator('input[name="RegNr"]')).toHaveValue(regNr);
+        await expect(page.locator('input[name="Moot"]')).toHaveValue('205/55R16');
+        await expect(page.locator('input[name="Tootja"]')).toHaveValue('Nokain');
+        await expect(page.locator('input[name="Kogus"]')).toHaveValue('4');
+        await expect(page.locator('select[name="hooaeg"]')).toHaveValue('Suverehv');
+        await expect(page.locator('select[name="tarnija"]')).toHaveValue('INTERCARS');
+        await expect(page.locator('input[name="Kuupaev"]')).toHaveValue('2030-03-10');
+
+        await page.fill('input[name="Tootja"]', 'Nokian');
+        await page.fill('input[name="Kogus"]', '2');
+        await page.selectOption('select[name="tarnija"]', 'ERIMELL');
+        await Promise.all([
+            page.waitForURL(/rehv_myyk\.php/, { waitUntil: 'load' }),
+            submitForm(page),
+        ]);
+
+        const updated = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(updated).toHaveCount(1);
+        await expect(updated).toContainText('Nokian');
+        await expect(updated).toContainText('2 tk');
+        await expect(updated).toContainText('ERIMELL');
+    });
+});

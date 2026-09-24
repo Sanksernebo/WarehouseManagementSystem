@@ -10,4 +10,9 @@
     <td><?php echo htmlspecialchars($row["Hooaeg"]); ?></td>
     <td><?php echo htmlspecialchars($row["Tarnija"]); ?></td>
     <td><?php echo htmlspecialchars($row["FormattedDate"]); ?></td>
+    <td>
+        <a href="edit_rehv_myyk.php?id=<?php echo $row["rehvimyyk_id"]; ?>">
+            <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
+        </a>
+    </td>
 </tr>

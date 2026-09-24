@@ -11,7 +11,7 @@ $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
 $limit  = 51;
 
 $select_and_from =
-    "SELECT UPPER(RegNr) AS RegNr,
+    "SELECT rehvimyyk_id, UPPER(RegNr) AS RegNr,
             DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate,
             Kogus, UPPER(Moot) AS Moot, Tootja, Hooaeg, Tarnija
      FROM Rehvi_myyk";

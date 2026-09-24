@@ -144,3 +144,57 @@ test.describe('Rehvi Ladu testid', () => {
         expect(resp.status()).toBe(401);
     });
 });
+
+test.describe('Rehvi Ladu muutmine', () => {
+    test.beforeEach(async ({ page }) => {
+        await ensureLoggedIn(page);
+    });
+
+    test('unauthenticated user is redirected to login from edit page', async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto(`${BASE_URL}/src/rehv_ladu/edit_rehv_ladu.php?id=1`);
+        await expect(page).toHaveURL(/login\.php/);
+    });
+
+    test('non-existent id renders an error message', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/edit_rehv_ladu.php?id=999999999`);
+        await expect(page.locator('body')).toContainText('Kirjet ei leitud');
+    });
+
+    test('edit form is pre-filled and changes persist', async ({ page }, testInfo) => {
+        const regNr = `LE${RUN_ID}${testInfo.workerIndex}`;
+        await createTireStorage(page, {
+            regNr,
+            omanik: 'Vana Omanik',
+            kogus: '4',
+            hooaeg: 'Suverehv',
+            kuupaev: '2030-03-10',
+        });
+
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(row).toHaveCount(1);
+        await Promise.all([
+            page.waitForURL(/edit_rehv_ladu\.php\?id=\d+/, { waitUntil: 'load' }),
+            row.locator('a[href*="edit_rehv_ladu.php"]').click(),
+        ]);
+
+        await expect(page.locator('input[name="RegNr"]')).toHaveValue(regNr);
+        await expect(page.locator('input[name="Omanik"]')).toHaveValue('Vana Omanik');
+        await expect(page.locator('input[name="Kogus"]')).toHaveValue('4');
+        await expect(page.locator('select[name="hooaeg"]')).toHaveValue('Suverehv');
+        await expect(page.locator('input[name="Kuupaev"]')).toHaveValue('2030-03-10');
+
+        await page.fill('input[name="Omanik"]', 'Uus Omanik');
+        await page.selectOption('select[name="hooaeg"]', 'Naastrehv');
+        await Promise.all([
+            page.waitForURL(/rehv_ladu\.php/, { waitUntil: 'load' }),
+            submitForm(page),
+        ]);
+
+        const updated = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(updated).toHaveCount(1);
+        await expect(updated).toContainText('Uus Omanik');
+        await expect(updated).toContainText('Naastrehv');
+        await expect(updated).not.toContainText('Vana Omanik');
+    });
+});
