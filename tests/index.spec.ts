@@ -60,12 +60,45 @@ test.describe('Index page tests', () => {
         await createProduct(page, tootekood, 'Testoode otsing');
 
         await page.goto(`${BASE_URL}/index.php`, { waitUntil: 'load' });
+        const responsePromise = page.waitForResponse((resp) =>
+            resp.url().includes('src/avaleht_nupud/search.php') && resp.status() === 200
+        );
         await page.fill('#searchBar', tootekood);
-        await page.locator('#searchBar').dispatchEvent('keyup');
+        await responsePromise;
 
-        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
-        await expect(visibleRows).toHaveCount(1);
-        await expect(visibleRows.first().locator('td:first-child')).toContainText(tootekood);
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first().locator('td:first-child')).toContainText(tootekood);
+
+        await deleteProduct(page, tootekood);
+    });
+
+    test('initial page load shows at most 50 rows', async ({ page }) => {
+        await page.goto(`${BASE_URL}/index.php`, { waitUntil: 'load' });
+        const count = await page.locator('#tableBody tr').count();
+        expect(count).toBeLessThanOrEqual(50);
+    });
+
+    test('clearing the search bar returns to the last-50 view', async ({ page }, testInfo) => {
+        const tootekood = `E2E-CLR-${RUN_ID}-${testInfo.workerIndex}`;
+        await createProduct(page, tootekood, 'Tühjenduse test');
+
+        await page.goto(`${BASE_URL}/index.php`, { waitUntil: 'load' });
+        const baselineRows = await page.locator('#tableBody tr').count();
+
+        let respPromise = page.waitForResponse((r) =>
+            r.url().includes('src/avaleht_nupud/search.php')
+        );
+        await page.fill('#searchBar', tootekood);
+        await respPromise;
+        await expect(page.locator('#tableBody tr')).toHaveCount(1);
+
+        respPromise = page.waitForResponse((r) =>
+            r.url().includes('src/avaleht_nupud/search.php')
+        );
+        await page.fill('#searchBar', '');
+        await respPromise;
+        await expect(page.locator('#tableBody tr')).toHaveCount(baselineRows);
 
         await deleteProduct(page, tootekood);
     });

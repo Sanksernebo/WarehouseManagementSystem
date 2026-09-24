@@ -75,9 +75,12 @@ test.describe('Tehtud Töö muutmine', () => {
             submitForm(page),
         ]);
 
+        const respPromise1 = page.waitForResponse((r) =>
+            r.url().includes('tehtud_tood/search.php')
+        );
         await page.fill('#searchBar', regNr);
-        await page.locator('#searchBar').press('End');
-        const row = page.locator('tbody tr').filter({ hasText: regNr.toUpperCase() });
+        await respPromise1;
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
         await expect(row).toHaveCount(1);
         await expect(row).toContainText(newDescription);
         await expect(row).not.toContainText('Vana kirjeldus');
@@ -94,9 +97,12 @@ test.describe('Tehtud Töö muutmine', () => {
             submitForm(page),
         ]);
 
+        const respPromise2 = page.waitForResponse((r) =>
+            r.url().includes('tehtud_tood/search.php')
+        );
         await page.fill('#searchBar', regNr);
-        await page.locator('#searchBar').press('End');
-        const row = page.locator('tbody tr').filter({ hasText: regNr.toUpperCase() });
+        await respPromise2;
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
         await expect(row).toContainText('123456');
     });
 });

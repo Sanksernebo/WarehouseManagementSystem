@@ -65,7 +65,6 @@ test.describe('Rehvi Ladu testid', () => {
     });
 
     test('newly added tire storage entry appears in the list', async ({ page }, testInfo) => {
-        // RL prefix + 6-digit RUN_ID + worker index → ≤ 10 chars
         const regNr = `RL${RUN_ID}${testInfo.workerIndex}`;
         await createTireStorage(page, {
             regNr,
@@ -75,8 +74,9 @@ test.describe('Rehvi Ladu testid', () => {
             kuupaev: '2030-06-15',
         });
 
-        // After submit we are on rehv_ladu.php
-        const row = page.locator('tbody tr').filter({ hasText: regNr.toUpperCase() });
+        // After submit we are on rehv_ladu.php showing the last 50 entries by
+        // Kuupaev DESC. The 2030 date guarantees the new row sorts to the top.
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
         await expect(row).toHaveCount(1);
         await expect(row).toContainText('Test Omanik');
         await expect(row).toContainText('4 tk');
@@ -93,17 +93,54 @@ test.describe('Rehvi Ladu testid', () => {
             kuupaev: '2030-11-01',
         });
 
+        const respPromise = page.waitForResponse((r) =>
+            r.url().includes('rehv_ladu/search.php')
+        );
         await page.fill('#searchBar', regNr);
-        await page.locator('#searchBar').dispatchEvent('keyup');
+        await respPromise;
 
-        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
-        await expect(visibleRows).toHaveCount(1);
-        await expect(visibleRows.first().locator('td:first-child')).toContainText(regNr.toUpperCase());
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first().locator('td:first-child')).toContainText(regNr.toUpperCase());
     });
 
     test('list page shows the Lisa Rehvid Lattu link', async ({ page }) => {
         await page.goto(`${BASE_URL}/src/rehv_ladu/rehv_ladu.php`);
         const addLink = page.locator('a.lisa-link[href*="lisa_rehv_ladu.php"]');
         await expect(addLink).toBeVisible();
+    });
+
+    test('initial page load shows at most 50 rows', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/rehv_ladu.php`, { waitUntil: 'load' });
+        const count = await page.locator('#tableBody tr').count();
+        expect(count).toBeLessThanOrEqual(50);
+    });
+
+    test('search matches by Omanik (not just first column)', async ({ page }, testInfo) => {
+        const regNr  = `RO${RUN_ID}${testInfo.workerIndex}`;
+        const omanik = `Owner-${RUN_ID}-${testInfo.workerIndex}`;
+        await createTireStorage(page, {
+            regNr,
+            omanik,
+            kogus: '4',
+            hooaeg: 'Suverehv',
+            kuupaev: '2030-01-15',
+        });
+
+        const respPromise = page.waitForResponse((r) =>
+            r.url().includes('rehv_ladu/search.php')
+        );
+        await page.fill('#searchBar', omanik);
+        await respPromise;
+
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first()).toContainText(regNr.toUpperCase());
+        await expect(rows.first()).toContainText(omanik);
+    });
+
+    test('unauthenticated request to search.php returns 401', async ({ request }) => {
+        const resp = await request.get(`${BASE_URL}/src/rehv_ladu/search.php?q=&offset=0`);
+        expect(resp.status()).toBe(401);
     });
 });
