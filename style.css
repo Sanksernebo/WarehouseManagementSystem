@@ -367,6 +367,15 @@ form input[type="submit"]:hover {
   border-radius: 22px;
 }
 
+/* <button class="lisa-link"> (e.g. "Laadi veel") should look like the <a>
+   version: buttons don't inherit the page font and shrink to their text. */
+button.lisa-link {
+  font-family: inherit;
+  line-height: inherit;
+  box-sizing: border-box;
+  width: calc(100% - 10px);
+}
+
 .lisa-link:hover {
   background-color: rgba(137, 206, 235, 0.6);
 }
