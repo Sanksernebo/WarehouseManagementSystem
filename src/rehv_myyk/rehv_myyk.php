@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn, "SELECT UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Kogus, UPPER(Moot) AS Moot, Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC LIMIT 51");
+$result = mysqli_query($conn, "SELECT rehvimyyk_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y') AS FormattedDate, Kogus, UPPER(Moot) AS Moot, Tootja, Hooaeg, Tarnija FROM Rehvi_myyk ORDER BY Kuupaev DESC LIMIT 51");
 $rows = [];
 while ($row = mysqli_fetch_array($result)) {
     $rows[] = $row;
@@ -20,6 +20,7 @@ if ($searchbar_initial_has_more) array_pop($rows);
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../style.css">
+    <script src="https://kit.fontawesome.com/4d1395116e.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/x-icon" href="../img/cartehniklogo_svg.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Müüdud Rehvid</title>
@@ -46,6 +47,7 @@ if ($searchbar_initial_has_more) array_pop($rows);
                 <td>Hooaeg</td>
                 <td>Tarnija</td>
                 <td>Kuupäev</td>
+                <td>Tegevus</td>
             </tr>
         </thead>
         <tbody id="tableBody">
