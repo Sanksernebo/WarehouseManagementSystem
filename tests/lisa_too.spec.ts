@@ -40,15 +40,17 @@ test.describe('Tehtud Tööd testid', () => {
         await createJob(page, regNr, 'Otsingu test 1');
         await createJob(page, regNr, 'Otsingu test 2');
 
-        // After second createJob we are already on tehtud_tood.php
+        const responsePromise = page.waitForResponse((r) =>
+            r.url().includes('tehtud_tood/search.php')
+        );
         await page.fill('#searchBar', regNr);
-        await page.locator('#searchBar').press('End'); // triggers real keyup → search()
+        await responsePromise;
 
-        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
-        const count = await visibleRows.count();
+        const rows = page.locator('#tableBody tr');
+        const count = await rows.count();
         expect(count).toBeGreaterThanOrEqual(2);
         for (let i = 0; i < count; i++) {
-            await expect(visibleRows.nth(i).locator('td:first-child')).toContainText(regNr);
+            await expect(rows.nth(i).locator('td:first-child')).toContainText(regNr);
         }
     });
 
@@ -59,13 +61,15 @@ test.describe('Tehtud Tööd testid', () => {
 
         await createJob(page, regNr, description);
 
-        // createJob redirects to tehtud_tood.php — search immediately
+        const responsePromise = page.waitForResponse((r) =>
+            r.url().includes('tehtud_tood/search.php')
+        );
         await page.fill('#searchBar', regNr);
-        await page.locator('#searchBar').press('End');
+        await responsePromise;
 
-        const visibleRows = page.locator('tbody tr:not([style*="display: none"])');
-        await expect(visibleRows).toHaveCount(1);
-        await expect(visibleRows.first().locator('td:first-child')).toContainText(regNr);
-        await expect(visibleRows.first().locator('td:nth-child(4)')).toContainText(description);
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first().locator('td:first-child')).toContainText(regNr);
+        await expect(rows.first().locator('td:nth-child(4)')).toContainText(description);
     });
 });

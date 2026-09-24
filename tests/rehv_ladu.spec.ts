@@ -1,0 +1,200 @@
+import { test, expect, Page } from '@playwright/test';
+import { BASE_URL, ensureLoggedIn } from './helpers';
+
+// RegNr column is VARCHAR(10) — use last 6 digits of timestamp so each test
+// run gets a unique RegNr that fits the column.
+const RUN_ID = (Date.now() % 1000000).toString().padStart(6, '0');
+
+async function submitForm(page: Page) {
+    await page.locator('form').evaluate((form: HTMLFormElement) => {
+        const btn = form.querySelector<HTMLInputElement>('input[type="submit"]');
+        if (btn) form.requestSubmit(btn);
+        else form.requestSubmit();
+    });
+}
+
+async function createTireStorage(page: Page, data: {
+    regNr: string;
+    omanik: string;
+    kogus: string;
+    hooaeg: 'Suverehv' | 'Naastrehv' | 'Lamellrehv';
+    kuupaev: string;
+}) {
+    await page.goto(`${BASE_URL}/src/rehv_ladu/lisa_rehv_ladu.php`, { waitUntil: 'load' });
+    await page.fill('input[name="RegNr"]', data.regNr);
+    await page.fill('input[name="Omanik"]', data.omanik);
+    await page.fill('input[name="Kogus"]', data.kogus);
+    await page.selectOption('select[name="hooaeg"]', data.hooaeg);
+    await page.fill('input[name="Kuupaev"]', data.kuupaev);
+    await Promise.all([
+        page.waitForURL(/rehv_ladu\.php/, { waitUntil: 'load' }),
+        submitForm(page),
+    ]);
+}
+
+test.describe('Rehvi Ladu testid', () => {
+    test.beforeEach(async ({ page }) => {
+        await ensureLoggedIn(page);
+    });
+
+    test('unauthenticated user is redirected to login from list page', async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto(`${BASE_URL}/src/rehv_ladu/rehv_ladu.php`);
+        await expect(page).toHaveURL(/login\.php/);
+    });
+
+    test('unauthenticated user is redirected to login from add page', async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto(`${BASE_URL}/src/rehv_ladu/lisa_rehv_ladu.php`);
+        await expect(page).toHaveURL(/login\.php/);
+    });
+
+    test('add form renders all required fields', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/lisa_rehv_ladu.php`);
+        await expect(page.locator('input[name="RegNr"]')).toBeVisible();
+        await expect(page.locator('input[name="Omanik"]')).toBeVisible();
+        await expect(page.locator('input[name="Kogus"]')).toBeVisible();
+        await expect(page.locator('select[name="hooaeg"]')).toBeVisible();
+        await expect(page.locator('input[name="Kuupaev"]')).toBeVisible();
+    });
+
+    test('season select offers the three allowed values', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/lisa_rehv_ladu.php`);
+        const options = await page.locator('select[name="hooaeg"] option').allTextContents();
+        expect(options).toEqual(['Suverehv', 'Naastrehv', 'Lamellrehv']);
+    });
+
+    test('newly added tire storage entry appears in the list', async ({ page }, testInfo) => {
+        const regNr = `RL${RUN_ID}${testInfo.workerIndex}`;
+        await createTireStorage(page, {
+            regNr,
+            omanik: 'Test Omanik',
+            kogus: '4',
+            hooaeg: 'Suverehv',
+            kuupaev: '2030-06-15',
+        });
+
+        // After submit we are on rehv_ladu.php showing the last 50 entries by
+        // Kuupaev DESC. The 2030 date guarantees the new row sorts to the top.
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(row).toHaveCount(1);
+        await expect(row).toContainText('Test Omanik');
+        await expect(row).toContainText('4 tk');
+        await expect(row).toContainText('Suverehv');
+    });
+
+    test('search bar filters tire storage list by registration number', async ({ page }, testInfo) => {
+        const regNr = `RS${RUN_ID}${testInfo.workerIndex}`;
+        await createTireStorage(page, {
+            regNr,
+            omanik: 'Otsing Omanik',
+            kogus: '2',
+            hooaeg: 'Naastrehv',
+            kuupaev: '2030-11-01',
+        });
+
+        const respPromise = page.waitForResponse((r) =>
+            r.url().includes('rehv_ladu/search.php')
+        );
+        await page.fill('#searchBar', regNr);
+        await respPromise;
+
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first().locator('td:first-child')).toContainText(regNr.toUpperCase());
+    });
+
+    test('list page shows the Lisa Rehvid Lattu link', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/rehv_ladu.php`);
+        const addLink = page.locator('a.lisa-link[href*="lisa_rehv_ladu.php"]');
+        await expect(addLink).toBeVisible();
+    });
+
+    test('initial page load shows at most 50 rows', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/rehv_ladu.php`, { waitUntil: 'load' });
+        const count = await page.locator('#tableBody tr').count();
+        expect(count).toBeLessThanOrEqual(50);
+    });
+
+    test('search matches by Omanik (not just first column)', async ({ page }, testInfo) => {
+        const regNr  = `RO${RUN_ID}${testInfo.workerIndex}`;
+        const omanik = `Owner-${RUN_ID}-${testInfo.workerIndex}`;
+        await createTireStorage(page, {
+            regNr,
+            omanik,
+            kogus: '4',
+            hooaeg: 'Suverehv',
+            kuupaev: '2030-01-15',
+        });
+
+        const respPromise = page.waitForResponse((r) =>
+            r.url().includes('rehv_ladu/search.php')
+        );
+        await page.fill('#searchBar', omanik);
+        await respPromise;
+
+        const rows = page.locator('#tableBody tr');
+        await expect(rows).toHaveCount(1);
+        await expect(rows.first()).toContainText(regNr.toUpperCase());
+        await expect(rows.first()).toContainText(omanik);
+    });
+
+    test('unauthenticated request to search.php returns 401', async ({ request }) => {
+        const resp = await request.get(`${BASE_URL}/src/rehv_ladu/search.php?q=&offset=0`);
+        expect(resp.status()).toBe(401);
+    });
+});
+
+test.describe('Rehvi Ladu muutmine', () => {
+    test.beforeEach(async ({ page }) => {
+        await ensureLoggedIn(page);
+    });
+
+    test('unauthenticated user is redirected to login from edit page', async ({ page }) => {
+        await page.context().clearCookies();
+        await page.goto(`${BASE_URL}/src/rehv_ladu/edit_rehv_ladu.php?id=1`);
+        await expect(page).toHaveURL(/login\.php/);
+    });
+
+    test('non-existent id renders an error message', async ({ page }) => {
+        await page.goto(`${BASE_URL}/src/rehv_ladu/edit_rehv_ladu.php?id=999999999`);
+        await expect(page.locator('body')).toContainText('Kirjet ei leitud');
+    });
+
+    test('edit form is pre-filled and changes persist', async ({ page }, testInfo) => {
+        const regNr = `LE${RUN_ID}${testInfo.workerIndex}`;
+        await createTireStorage(page, {
+            regNr,
+            omanik: 'Vana Omanik',
+            kogus: '4',
+            hooaeg: 'Suverehv',
+            kuupaev: '2030-03-10',
+        });
+
+        const row = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(row).toHaveCount(1);
+        await Promise.all([
+            page.waitForURL(/edit_rehv_ladu\.php\?id=\d+/, { waitUntil: 'load' }),
+            row.locator('a[href*="edit_rehv_ladu.php"]').click(),
+        ]);
+
+        await expect(page.locator('input[name="RegNr"]')).toHaveValue(regNr);
+        await expect(page.locator('input[name="Omanik"]')).toHaveValue('Vana Omanik');
+        await expect(page.locator('input[name="Kogus"]')).toHaveValue('4');
+        await expect(page.locator('select[name="hooaeg"]')).toHaveValue('Suverehv');
+        await expect(page.locator('input[name="Kuupaev"]')).toHaveValue('2030-03-10');
+
+        await page.fill('input[name="Omanik"]', 'Uus Omanik');
+        await page.selectOption('select[name="hooaeg"]', 'Naastrehv');
+        await Promise.all([
+            page.waitForURL(/rehv_ladu\.php/, { waitUntil: 'load' }),
+            submitForm(page),
+        ]);
+
+        const updated = page.locator('#tableBody tr').filter({ hasText: regNr.toUpperCase() });
+        await expect(updated).toHaveCount(1);
+        await expect(updated).toContainText('Uus Omanik');
+        await expect(updated).toContainText('Naastrehv');
+        await expect(updated).not.toContainText('Vana Omanik');
+    });
+});

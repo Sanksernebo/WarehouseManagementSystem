@@ -5,7 +5,13 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once 'src/db/laoseis.php';
-$result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
+$result = mysqli_query($conn, "SELECT Tootekood, Nimetus, Kogus, Sisseost, Jaehind, Ost, Olek, toote_id FROM Ladu ORDER BY toote_id DESC LIMIT 51");
+$rows = [];
+while ($row = mysqli_fetch_array($result)) {
+    $rows[] = $row;
+}
+$searchbar_initial_has_more = count($rows) > 50;
+if ($searchbar_initial_has_more) array_pop($rows);
 ?>
 <!DOCTYPE html>
 <html>
@@ -25,8 +31,13 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
 
     <h1>Laoseis</h1>
     <a href="src/lisa_lattu/lisa_lattu.php" class="lisa-link">Lisa Laoseisu</a>
-    <input type="text" id="searchBar" onkeyup="search()" placeholder="Sisesta Tootekood">
-    <table id=myTable>
+    <?php
+    $searchbar_endpoint    = 'src/avaleht_nupud/search.php';
+    $searchbar_placeholder = 'Otsi';
+    $searchbar_js_path     = 'src/includes/searchbar.js';
+    require_once 'src/includes/searchbar_init.php';
+    ?>
+    <table id="myTable">
         <thead>
             <tr>
                 <td>Tootekood</td>
@@ -39,32 +50,14 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
                 <td>Tegevus</td>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tableBody">
             <?php
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_array($result)) {
-                    ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($row["Tootekood"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Nimetus"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Kogus"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Sisseost"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Jaehind"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Ost"]); ?></td>
-                        <td><?php echo htmlspecialchars($row["Olek"]); ?></td>
-                        <td>
-                            <a href="src/avaleht_nupud/update-process.php?ID=<?php echo $row["toote_id"]; ?>">
-                                <i class="fa-solid fa-pen-to-square fa-lg muuda-icon"></i>
-                            </a>
-                            <a href="src/avaleht_nupud/delete-process.php?ID=<?php echo $row["toote_id"]; ?>">
-                                <i class="fa-solid fa-trash fa-lg kustuta-icon"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php
+            if (count($rows) > 0) {
+                foreach ($rows as $row) {
+                    include 'src/avaleht_nupud/_row.php';
                 }
             } else {
-                echo "<tr><td colspan='8'><p style='font-weight:bold'>Tulemusi ei leitud</p></td></tr>";
+                echo "<tr class='empty-state'><td colspan='8'><p style='font-weight:bold'>Tulemusi ei leitud</p></td></tr>";
             }
             ?>
         </tbody>
@@ -72,32 +65,6 @@ $result = mysqli_query($conn, "SELECT * FROM Ladu ORDER BY toote_id DESC");
 
 <?php require_once 'src/includes/footer.php'; ?>
 </body>
-<script>
-    function search() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("searchBar");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0];
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-
-        var headerRow = table.querySelector("thead tr");
-        if (headerRow) {
-            headerRow.style.display = "";
-        }
-    }
-</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var currentUrl = window.location.href;

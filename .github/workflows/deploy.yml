@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8
@@ -111,7 +111,7 @@ jobs:
 
   deploy:
     needs: test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       SSH_USER: ${{ secrets.ZONE_SSH_USER }}

@@ -530,3 +530,12 @@ footer {
   color: white;
   text-align: center;
 }
+
+.search-error {
+    color: #c00;
+    margin: 0.5em 0;
+    min-height: 1em;
+}
+.search-error:empty {
+    display: none;
+}
