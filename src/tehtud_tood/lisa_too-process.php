@@ -16,10 +16,11 @@ if (isset($_POST['submit'])) {
     $Kuupaev     = $_POST['Kuupaev'];
     $Odomeeter   = $_POST['Odomeeter'];
     $Tehtud_tood = $_POST['Tehtud_tood'];
+    $Arve_staatus = isset($_POST['Arve']) ? 'koostamata' : 'puudub';
 
-    $sql = "INSERT INTO Tehtud_tood (RegNr, Kuupaev, Odomeeter, Tehtud_tood) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO Tehtud_tood (RegNr, Kuupaev, Odomeeter, Tehtud_tood, Arve_staatus) VALUES (?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssis", $RegNr, $Kuupaev, $Odomeeter, $Tehtud_tood);
+    mysqli_stmt_bind_param($stmt, "ssiss", $RegNr, $Kuupaev, $Odomeeter, $Tehtud_tood, $Arve_staatus);
 
     if (mysqli_stmt_execute($stmt)) {
         mysqli_stmt_close($stmt);
@@ -62,7 +63,9 @@ if (isset($_POST['submit'])) {
             <br>
             Tehtud Tööd:<br>
             <textarea name="Tehtud_tood" class="txtField"></textarea>
-            <br>
+            <label class="arve-valik">
+                <input type="checkbox" name="Arve" value="1"> Väljasta arve
+            </label>
             <div class="formButton">
                 <input type="submit" name="submit" value="Lisa" class="button">
             </div>

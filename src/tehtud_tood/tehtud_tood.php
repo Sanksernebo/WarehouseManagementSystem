@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once '../db/laoseis.php';
-$result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood FROM Tehtud_tood ORDER BY Kuupaev DESC LIMIT 51");
+$result = mysqli_query($conn, "SELECT too_id, UPPER(RegNr) as RegNr, DATE_FORMAT(Kuupaev, '%d.%m.%Y %H:%i') AS FormattedDate, Odomeeter, Tehtud_tood, Arve_staatus FROM Tehtud_tood ORDER BY Kuupaev DESC LIMIT 51");
 $rows = [];
 while ($row = mysqli_fetch_array($result)) {
     $rows[] = $row;
@@ -35,6 +35,12 @@ if ($searchbar_initial_has_more) array_pop($rows);
     $searchbar_endpoint    = 'search.php';
     $searchbar_placeholder = 'Otsi';
     $searchbar_js_path     = '../includes/searchbar.js';
+    $searchbar_filter_ids  = ['arveFilter'];
+    $searchbar_filters_html =
+        '<label class="filter-toggle" title="Näita ainult töid, millele tuleb arve väljastada">'
+        . '<input type="checkbox" id="arveFilter" name="arve" value="arvega" autocomplete="off">'
+        . '<i class="fa-solid fa-file-invoice"></i> Arvega tööd'
+        . '</label>';
     require_once '../includes/searchbar_init.php';
     ?>
     <table id="myTable">
@@ -69,6 +75,35 @@ if ($searchbar_initial_has_more) array_pop($rows);
             if (link.href === currentUrl) {
                 link.classList.add('active');
             }
+        });
+
+        // Invoice icon: advance the status in place instead of reloading the
+        // page, so the current search and loaded rows are kept. Delegated on
+        // the tbody because search / "Laadi veel" replace the rows.
+        document.getElementById('tableBody').addEventListener('submit', function (e) {
+            var form = e.target.closest('.arve-form');
+            if (!form) return;
+            e.preventDefault();
+            var button = form.querySelector('button');
+            if (button.disabled) return;
+            button.disabled = true;
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(function (resp) {
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    return resp.json();
+                })
+                .then(function (data) {
+                    form.outerHTML = data.html;
+                })
+                .catch(function () {
+                    button.disabled = false;
+                    alert('Arve staatuse muutmine ebaõnnestus. Palun proovige uuesti.');
+                });
         });
     });
 </script>
