@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 include_once '../db/laoseis.php';
+require_once '_arve.php';
 
 $message = '';
 
@@ -12,8 +13,10 @@ if (count($_POST) > 0) {
     require_once '../includes/csrf.php';
     csrf_verify();
 
-    $stmt = mysqli_prepare($conn, "UPDATE Tehtud_tood SET RegNr=?, Kuupaev=?, Odomeeter=?, Tehtud_tood=? WHERE too_id=?");
-    mysqli_stmt_bind_param($stmt, 'ssisi', $_POST['RegNr'], $_POST['Kuupaev'], $_POST['Odomeeter'], $_POST['Tehtud_tood'], $_POST['too_id']);
+    $arve_staatus = arve_staatus_kehtiv($_POST['Arve_staatus'] ?? null) ? $_POST['Arve_staatus'] : 'puudub';
+
+    $stmt = mysqli_prepare($conn, "UPDATE Tehtud_tood SET RegNr=?, Kuupaev=?, Odomeeter=?, Tehtud_tood=?, Arve_staatus=? WHERE too_id=?");
+    mysqli_stmt_bind_param($stmt, 'ssissi', $_POST['RegNr'], $_POST['Kuupaev'], $_POST['Odomeeter'], $_POST['Tehtud_tood'], $arve_staatus, $_POST['too_id']);
 
     if (!mysqli_stmt_execute($stmt)) {
         $message = "Uuendamine ebaõnnestus.";
@@ -78,6 +81,13 @@ if (isset($_GET['too_id'])) {
             <br>
             Tehtud Tööd:<br>
             <textarea type="text" name="Tehtud_tood" rows="4" cols="48"><?php echo htmlspecialchars($row['Tehtud_tood']); ?></textarea>
+            <br>
+            Arve:<br>
+            <select name="Arve_staatus" class="txtField">
+                <?php foreach (ARVE_STAATUSED as $value => $label): ?>
+                    <option value="<?php echo $value; ?>"<?php if ($row['Arve_staatus'] === $value) echo ' selected'; ?>><?php echo htmlspecialchars($label); ?></option>
+                <?php endforeach; ?>
+            </select>
             <br>
             <div class="formButton">
                 <input type="submit" name="submit" value="Uuenda" class="button">

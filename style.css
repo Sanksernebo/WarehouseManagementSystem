@@ -228,9 +228,12 @@ table tbody tr:hover {
   position: relative;
 }
 
-.odomeeter-container input[type="number"] {
+/* Space for the 'km' suffix, also on focus where the generic
+   form input:focus rule would otherwise shrink it and push the
+   number spinner under the label. */
+.odomeeter-container input[type="number"],
+.odomeeter-container input[type="number"]:focus {
   padding-right: 40px;
-  /* Space for the 'km' suffix */
 }
 
 .odomeeter-container .odomeeter-km {
@@ -350,6 +353,117 @@ form input[type="submit"]:hover {
 .pdf-icon:hover {
   margin: 5px;
   color: #89CEEE;
+}
+
+/* Undo the global form box styling: this form only wraps the row icon. */
+.arve-form {
+  display: inline;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.arve-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 5px;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Keep the invoice and edit icons on one centred line. */
+.tegevus .arve-form,
+.tegevus > a {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Search bar with optional filter controls on the same row. */
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: stretch;
+}
+
+/* Wraps the filters onto their own line when the input would get too narrow. */
+.search-row #searchBar {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.filter-toggle {
+  min-height: 44px;
+}
+
+/* A checkbox styled as an on/off button. */
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  background: #c3c3c3;
+  border: 1px solid #ccc;
+  color: #000;
+  font: 95% 'Lato', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.filter-toggle:hover {
+  background: #b3b3b3;
+}
+
+.filter-toggle:has(input:checked) {
+  background: #89CEEE;
+  border-color: #89CEEE;
+  font-weight: bold;
+}
+
+.filter-toggle:has(input:focus-visible) {
+  outline: 2px solid #333;
+  outline-offset: 2px;
+}
+
+.arve-button:disabled {
+  cursor: default;
+}
+
+.arve-koostamata { color: #d9534f; }
+.arve-saadetud   { color: #f0ad4e; }
+.arve-makstud    { color: #5cb85c; }
+
+.arve-button:not(:disabled):hover {
+  opacity: 0.7;
+}
+
+.arve-valik {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.arve-valik input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #333;
+  cursor: pointer;
 }
 
 .lisa-link {

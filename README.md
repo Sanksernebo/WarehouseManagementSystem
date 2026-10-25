@@ -9,7 +9,7 @@ A web-based management system built for **Rõngu Auto OÜ**, an auto repair shop
 | Module | Description |
 |--------|-------------|
 | **Laoseis** | Product inventory — add, edit, delete parts and supplies |
-| **Tehtud Tööd** | Work order log — add and edit completed jobs per vehicle with odometer and date |
+| **Tehtud Tööd** | Work order log — add and edit completed jobs per vehicle with odometer and date. Jobs can be marked as needing an invoice; a colour-coded icon tracks it (red = not created, orange = sent, green = paid) and is clicked to advance the status |
 | **Rehvid Laos** | Tire storage — add and edit customer tires stored on-site by season |
 | **Müüdud Rehvid** | Tire sales log — add and edit tire sales with size, brand, and supplier |
 | **Müüdud Tooted** | Product sales log — view items sold out of inventory |
@@ -24,6 +24,7 @@ The list pages (Laoseis, Tehtud Tööd, Rehvid Laos, Müüdud Rehvid) use a shar
 - The page initially shows the 50 most recent rows.
 - Typing in the search bar queries that page's `search.php` (debounced) and replaces the table contents.
 - A **Laadi veel** button below the table loads the next 50 rows for the current search, and hides itself when there are no more.
+- A page can add filter dropdowns next to the search bar (`$searchbar_filter_ids`); their values are sent along with the search. Tehtud Tööd uses this for its **Arve** filter (show only jobs with an invoice).
 
 The shared pieces live in `src/includes/searchbar_init.php` (markup + setup) and `src/includes/searchbar.js` (client logic). Each module provides its own `search.php` (JSON endpoint) and `_row.php` (row template used by both the initial render and search results).
 

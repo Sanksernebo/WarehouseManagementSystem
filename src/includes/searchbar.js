@@ -6,6 +6,9 @@
 //     tbodyId:     'tableBody',    // <tbody id="tableBody"> on the list page
 //     loadMoreId:  'loadMore',
 //     errorId:     'searchError',
+//     filterIds:   ['arveFilter'], // optional <select>s / checkboxes; each is
+//                                  // sent as name=value (checkboxes only when
+//                                  // checked) and re-runs the search on change
 //   });
 window.initSearchbar = function (config) {
     var input     = document.getElementById(config.inputId);
@@ -26,6 +29,10 @@ window.initSearchbar = function (config) {
     }
 
     if (!input || !tbody || !loadMore || !errorBox) return;
+
+    var filters = (config.filterIds || [])
+        .map(function (id) { return document.getElementById(id); })
+        .filter(Boolean);
 
     var currentQuery   = '';
     function countDataRows() {
@@ -56,6 +63,12 @@ window.initSearchbar = function (config) {
         var url = config.endpoint
             + '?q=' + encodeURIComponent(query)
             + '&offset=' + offset;
+        filters.forEach(function (el) {
+            var value = el.type === 'checkbox' ? (el.checked ? el.value : '') : el.value;
+            if (value !== '') {
+                url += '&' + encodeURIComponent(el.name) + '=' + encodeURIComponent(value);
+            }
+        });
         return fetch(url, { credentials: 'same-origin' })
             .then(function (resp) {
                 if (!resp.ok) {
@@ -97,16 +110,25 @@ window.initSearchbar = function (config) {
             });
     }
 
+    function refresh() {
+        currentQuery  = input.value;
+        currentOffset = 0;
+        fetchRows(currentQuery, 0, false).then(function () {
+            // After a fresh query, currentOffset tracks rows now in DOM.
+            currentOffset = countDataRows();
+        });
+    }
+
     input.addEventListener('input', function () {
         if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function () {
-            currentQuery  = input.value;
-            currentOffset = 0;
-            fetchRows(currentQuery, 0, false).then(function () {
-                // After a fresh query, currentOffset tracks rows now in DOM.
-                currentOffset = countDataRows();
-            });
-        }, 250);
+        debounceTimer = setTimeout(refresh, 250);
+    });
+
+    filters.forEach(function (el) {
+        el.addEventListener('change', function () {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            refresh();
+        });
     });
 
     loadMore.addEventListener('click', function () {

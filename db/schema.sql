@@ -232,6 +232,7 @@ CREATE TABLE `Tehtud_tood` (
   `Kuupaev` datetime NOT NULL,
   `Odomeeter` int(11) NOT NULL,
   `Tehtud_tood` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_estonian_ci NOT NULL,
+  `Arve_staatus` enum('puudub','koostamata','saadetud','makstud') NOT NULL DEFAULT 'puudub',
   PRIMARY KEY (`too_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=945 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
