@@ -69,7 +69,8 @@ if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 Steps:
 
 1. Check out the repo.
-2. Write `ZONE_SSH_KEY` (private deploy key) and `ZONE_KNOWN_HOSTS` (pinned host key) from GitHub Secrets into `~/.ssh`. SSH runs with `StrictHostKeyChecking=yes`, so a server whose host key doesn't match is refused.
+2. Write `ZONE_SSH_KEY` (private deploy key, stored as a GitHub Secret) to `~/.ssh` on the runner.
+3. `ssh-keyscan` Zone's host key so the connection isn't blocked by host verification.
 4. **Snapshot the live webroot** on Zone: `cp -a <webroot> <webroot>.bak-<commit-sha>`. Prune snapshots older than the 3 most recent.
 5. **rsync** with `--delete --exclude-from=.deployignore` to push the working tree onto the server.
 
@@ -83,7 +84,6 @@ The deploy job is fast (~30 seconds) because rsync only transfers files that act
 | `ZONE_SSH_USER` | The Zone virtual-server account name (typically `virtNNNNNN`) |
 | `ZONE_SSH_KEY` | Contents of the `zone_deploy` private key (ed25519) |
 | `ZONE_DEPLOY_PATH` | Absolute path to the webroot on the server (typically `/data01/virtNNNNNN/domeenid/<domain>/htdocs/<sitedir>`) |
-| `ZONE_KNOWN_HOSTS` | Output of `ssh-keyscan -H <zone-host>`, run once from a trusted machine |
 
 These can be repository secrets or secrets on the `production` environment (environment secrets take precedence).
 
@@ -356,7 +356,7 @@ ssh-keygen -R <zone-host>
 ssh-keyscan -H <zone-host> >> ~/.ssh/known_hosts
 ```
 
-CI pins the host key in the `ZONE_KNOWN_HOSTS` secret, so after a rotation deploys fail with a host key error. Verify the new key, then update the secret with the output of `ssh-keyscan -H <zone-host>`.
+GitHub Actions re-runs `ssh-keyscan` every deploy, so it picks up host key changes automatically — no maintenance needed on the CI side.
 
 ### 6.7 macOS deprecated `ssh-rsa`
 
