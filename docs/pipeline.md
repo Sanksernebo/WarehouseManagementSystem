@@ -8,37 +8,39 @@ For the original design rationale, see [superpowers/specs/2026-05-21-zone-media-
 
 ## 1. Overview
 
-The pipeline replaces manual FileZilla uploads with two automated GitHub Actions workflows:
+The pipeline replaces manual FileZilla uploads with a single GitHub Actions workflow, `.github/workflows/ci.yml` (named **CI**), with two jobs:
 
-| File | Triggers on | What it does |
+| Job | Runs on | What it does |
 |---|---|---|
-| `.github/workflows/playwright.yml` | PR into `main` or `development` | Spins up an ephemeral MySQL + PHP environment, runs Playwright. Provides pre-merge feedback. |
-| `.github/workflows/deploy.yml` | Push to `main` (i.e. merge) | Same test job, plus a deploy job that snapshots the live webroot and rsyncs the new code to Zone over SSH. |
+| `test` | PR into `main` or `development`, push to `main`, manual dispatch | Spins up an ephemeral MySQL + PHP environment, runs Playwright. Provides pre-merge feedback. |
+| `deploy` | Push to `main` (i.e. merge), after `test` passes | Snapshots the live webroot and rsyncs the new code to Zone over SSH. |
+
+A new push to a PR cancels that PR's previous run. Runs on `main` are never cancelled, and deploys run one at a time (concurrency group `production-deploy`).
 
 The branching model is unchanged: `feature/*` → `development` → `main`. The act of landing on `main` is what triggers a deploy. Nothing else does.
 
 ```
             ┌──────────────────────────────────┐
             │  feature/<name>                  │
-            │  PR ──► Playwright Tests (PR) ──►│ merge to development
+            │  PR ──► CI / test ─────────────►│ merge to development
             └──────────────────────────────────┘
                               │
                               ▼
             ┌──────────────────────────────────┐
             │  development                     │
-            │  PR ──► Playwright Tests (PR) ──►│ merge to main
+            │  PR ──► CI / test ─────────────►│ merge to main
             └──────────────────────────────────┘
                               │
                               ▼
             ┌──────────────────────────────────┐
             │  main                            │
-            │  push ──► Test and Deploy ──────►│ Zone Media production
+            │  push ──► CI / test + deploy ──►│ Zone Media production
             └──────────────────────────────────┘
 ```
 
 ## 2. Architecture
 
-### 2.1 Test job (used by both workflows)
+### 2.1 Test job
 
 Runs inside a GitHub-hosted Ubuntu runner. Roughly:
 
@@ -49,12 +51,14 @@ Runs inside a GitHub-hosted Ubuntu runner. Roughly:
 5. Create a CI-only `src/db/laoseis.php` that connects to the local MySQL container (the production `laoseis.php` is gitignored and lives only on the server).
 6. Seed a `TestUser` row in the `Login` table with a bcrypt'd password.
 7. Start `php -S localhost:8000` with `PHP_CLI_SERVER_WORKERS=4` so it handles concurrent requests.
-8. `npm ci`, install Playwright browsers, run `npx playwright test --workers=4`.
-9. Always upload `playwright-report/` and `php.log` as a GitHub Actions artifact, regardless of outcome.
+8. `npm ci`, restore Playwright browsers from cache (keyed on the Playwright version; on a miss they are downloaded), run `npx playwright test` (4 workers when `CI` is set).
+9. On failure, upload `playwright-report/` and `php.log` as a GitHub Actions artifact (kept 7 days).
+
+The job has a 20-minute timeout.
 
 When the job ends, the runner is destroyed. The ephemeral DB exists for the duration of the job only — it never connects to anything on Zone, and there is no network path from a GitHub runner to your Zone database.
 
-### 2.2 Deploy job (deploy.yml only)
+### 2.2 Deploy job
 
 Runs **only when the test job passes** AND the event is a push to `main`. The guard:
 
@@ -65,12 +69,11 @@ if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 Steps:
 
 1. Check out the repo.
-2. Load `ZONE_SSH_KEY` (private deploy key, stored as a GitHub Secret) into the runner's SSH agent.
-3. `ssh-keyscan` Zone's host key so the connection isn't blocked by host verification.
+2. Write `ZONE_SSH_KEY` (private deploy key) and `ZONE_KNOWN_HOSTS` (pinned host key) from GitHub Secrets into `~/.ssh`. SSH runs with `StrictHostKeyChecking=yes`, so a server whose host key doesn't match is refused.
 4. **Snapshot the live webroot** on Zone: `cp -a <webroot> <webroot>.bak-<commit-sha>`. Prune snapshots older than the 3 most recent.
 5. **rsync** with `--delete --exclude-from=.deployignore` to push the working tree onto the server.
 
-The deploy job is fast (~30 seconds) because rsync only transfers files that actually differ.
+The deploy job is fast (~30 seconds) because rsync only transfers files that actually differ. It runs in the `production` GitHub environment and has a 10-minute timeout.
 
 ### 2.3 GitHub Secrets
 
@@ -80,6 +83,9 @@ The deploy job is fast (~30 seconds) because rsync only transfers files that act
 | `ZONE_SSH_USER` | The Zone virtual-server account name (typically `virtNNNNNN`) |
 | `ZONE_SSH_KEY` | Contents of the `zone_deploy` private key (ed25519) |
 | `ZONE_DEPLOY_PATH` | Absolute path to the webroot on the server (typically `/data01/virtNNNNNN/domeenid/<domain>/htdocs/<sitedir>`) |
+| `ZONE_KNOWN_HOSTS` | Output of `ssh-keyscan -H <zone-host>`, run once from a trusted machine |
+
+These can be repository secrets or secrets on the `production` environment (environment secrets take precedence).
 
 The actual values for this project live in GitHub Secrets only — do not commit them anywhere in the repo.
 
@@ -112,7 +118,7 @@ git checkout -b feature/<short-name>
 git push -u origin feature/<short-name>
 ```
 
-Open a PR `feature/<short-name>` → `development` on GitHub. The `Playwright Tests (PR)` check runs automatically. When it goes green, merge.
+Open a PR `feature/<short-name>` → `development` on GitHub. The `CI / test` check runs automatically. When it goes green, merge.
 
 When you're ready to release, open a PR `development` → `main`. Same check runs. Merge to deploy.
 
@@ -205,7 +211,7 @@ git commit -m "Add email reminder column to calendar"
 git push
 ```
 
-Open the PR. The `Playwright Tests (PR)` check now uses the new schema. If tests touch the new column behavior, they'll exercise it for real.
+Open the PR. The `CI / test` check now uses the new schema. If tests touch the new column behavior, they'll exercise it for real.
 
 **Step 5 — Merge to development.**
 
@@ -284,7 +290,7 @@ Zone may require IP whitelisting for external MySQL connections (separate from t
 
 ### 5.1 Dependabot
 
-`.github/dependabot.yml` opens a grouped PR weekly for outdated npm devDependencies (mostly Playwright). Treat these like any other PR: wait for the `Playwright Tests (PR)` check, review the changelog if it's a major bump, merge.
+`.github/dependabot.yml` opens a grouped PR weekly for outdated npm devDependencies (mostly Playwright). Treat these like any other PR: wait for the `CI / test` check, review the changelog if it's a major bump, merge.
 
 These updates have no production impact — they only affect what runs in CI. The `.deployignore` keeps all JS infrastructure out of the production webroot.
 
@@ -308,7 +314,7 @@ If you suspect the deploy key has been compromised, or it's good hygiene to rota
 2. Add the new public key to Zone's SSH keys panel.
 3. Verify it works: `ssh -i ~/.ssh/zone_deploy_new <zone-user>@<zone-host> "echo ok"`
 4. Update the `ZONE_SSH_KEY` GitHub Secret with the new private key contents.
-5. Trigger a deploy (push a trivial commit or use `workflow_dispatch`) to verify the secret update works.
+5. Trigger a deploy (merge or push a trivial commit to `main`; `workflow_dispatch` only runs the tests) to verify the secret update works.
 6. Once verified, remove the old public key from Zone.
 
 ### 5.4 Adding new files that the server owns
@@ -350,7 +356,7 @@ ssh-keygen -R <zone-host>
 ssh-keyscan -H <zone-host> >> ~/.ssh/known_hosts
 ```
 
-GitHub Actions re-runs `ssh-keyscan` every deploy, so it picks up host key changes automatically — no maintenance needed on the CI side.
+CI pins the host key in the `ZONE_KNOWN_HOSTS` secret, so after a rotation deploys fail with a host key error. Verify the new key, then update the secret with the output of `ssh-keyscan -H <zone-host>`.
 
 ### 6.7 macOS deprecated `ssh-rsa`
 
@@ -368,8 +374,7 @@ Best long-term: replace your personal RSA key with an ed25519 one.
 
 ### Workflow files
 
-- `.github/workflows/deploy.yml` — main pipeline (test + deploy on push to main)
-- `.github/workflows/playwright.yml` — PR test workflow (no deploy)
+- `.github/workflows/ci.yml` — tests on PRs and pushes to main; deploys on push to main
 
 ### Other repo files
 
