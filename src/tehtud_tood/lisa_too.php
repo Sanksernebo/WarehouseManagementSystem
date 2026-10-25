@@ -39,8 +39,9 @@ require_once '../includes/csrf.php';
         <br>
         Tehtud Tööd:<br>
         <textarea type="text" name="Tehtud_tood" rows="4" cols="48"></textarea>
-
-        <br><br>
+        <label class="arve-valik">
+            <input type="checkbox" name="Arve" value="1"> Väljasta arve
+        </label>
         <div class="formButton">
             <input type="submit" name="submit" value="Sisesta">
         </div>

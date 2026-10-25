@@ -4,9 +4,13 @@
 //   $searchbar_endpoint    — relative URL of the page's search.php
 //   $searchbar_placeholder — Estonian placeholder text
 //   $searchbar_js_path     — relative URL of searchbar.js for this page
+//   $searchbar_filters_html — optional filter controls shown beside the input
+//   $searchbar_filter_ids   — ids of those controls (<select> or checkbox)
 $endpoint    = isset($searchbar_endpoint)    ? $searchbar_endpoint    : 'search.php';
 $placeholder = isset($searchbar_placeholder) ? $searchbar_placeholder : 'Otsi';
 $js_path     = isset($searchbar_js_path)     ? $searchbar_js_path     : 'src/includes/searchbar.js';
+$filters_html = isset($searchbar_filters_html) ? $searchbar_filters_html : '';
+$filter_ids   = isset($searchbar_filter_ids)   ? $searchbar_filter_ids   : [];
 
 // If the caller knows whether more rows are available beyond the initial
 // paint, they can set $searchbar_initial_has_more to true/false. If unset,
@@ -15,7 +19,10 @@ $initial_has_more_js = isset($searchbar_initial_has_more)
     ? ($searchbar_initial_has_more ? 'true' : 'false')
     : 'undefined';
 ?>
-<input type="text" id="searchBar" autocomplete="off" placeholder="<?php echo htmlspecialchars($placeholder); ?>">
+<div class="search-row">
+    <input type="text" id="searchBar" autocomplete="off" placeholder="<?php echo htmlspecialchars($placeholder); ?>">
+    <?php echo $filters_html; ?>
+</div>
 <div id="searchError" class="search-error" role="status" aria-live="polite" aria-atomic="true"></div>
 <script src="<?php echo htmlspecialchars($js_path); ?>"></script>
 <script>
@@ -29,6 +36,7 @@ $initial_has_more_js = isset($searchbar_initial_has_more)
             tbodyId:    'tableBody',
             loadMoreId: 'loadMore',
             errorId:    'searchError',
+            filterIds:  <?php echo json_encode($filter_ids); ?>,
             initialHasMore: <?php echo $initial_has_more_js; ?>
         });
     });
