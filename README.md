@@ -54,8 +54,7 @@ The shared pieces live in `src/includes/searchbar_init.php` (markup + setup) and
 ├── .deployignore               # Files excluded from the deploy rsync
 ├── .github/
 │   ├── workflows/
-│   │   ├── playwright.yml      # Tests on PRs into main / development
-│   │   └── deploy.yml          # Test + deploy on push to main
+│   │   └── ci.yml              # Tests on PRs; test + deploy on push to main
 │   └── dependabot.yml
 └── src/
     ├── includes/               # Shared components
@@ -146,8 +145,8 @@ Tests create their own data and use unique values, so they can run against a sha
 
 Branching model: `feature/*` → `development` → `main`.
 
-- Branch off `development`, push the branch, and open a PR into `development`. The **Playwright Tests (PR)** workflow runs the full test suite against a throwaway MySQL database built from `db/schema.sql`.
-- To release, open a PR from `development` into `main`. Merging it triggers the **Test and Deploy** workflow, which reruns the tests, snapshots the live webroot on Zone Media, and rsyncs the code over SSH (excluding everything in `.deployignore`).
+- Branch off `development`, push the branch, and open a PR into `development`. The **CI** workflow runs the full test suite against a throwaway MySQL database built from `db/schema.sql`.
+- To release, open a PR from `development` into `main`. Merging it triggers the **CI** workflow, which reruns the tests, snapshots the live webroot on Zone Media, and rsyncs the code over SSH (excluding everything in `.deployignore`).
 - If a deploy breaks the site, run `rollback.sh` on the server to restore the latest snapshot, then `git revert` the bad commit.
 
 Deploys ship **code only**. Database schema changes are applied manually to the dev and production databases, and `db/schema.sql` must be regenerated so CI knows about them. See [docs/pipeline.md](docs/pipeline.md) for the full procedure, GitHub Secrets, rollback steps, and known quirks.

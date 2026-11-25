@@ -17,9 +17,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* php -S is single-threaded; limit to 1 worker to prevent request queuing.
-     For faster runs, restart PHP with: PHP_CLI_SERVER_WORKERS=4 php -S localhost:8000 */
-  workers: 1,
+  /* php -S is single-threaded by default, so local runs use 1 worker to prevent request queuing.
+     CI starts PHP with PHP_CLI_SERVER_WORKERS=4, so it runs 4 workers.
+     For faster local runs, start PHP with: PHP_CLI_SERVER_WORKERS=4 php -S localhost:8000
+     and pass --workers=4. */
+  workers: process.env.CI ? 4 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
